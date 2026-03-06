@@ -94,7 +94,19 @@ Ros2 Jazzy Running on Ubuntu 24.04
 ---
 
 ## 4. Saftey and Operational Protocol
+### Safety & Operational Protocol
+#### Deadman Switch (Communication Timeout)
 
+To prevent uncontrolled robot motion in the event of communication loss, the system implements a software Deadman Switch. The TurtleBot must continuously receive velocity commands from the navigation or planning node in order to move.
+
+If no new velocity command is received within a predefined timeout interval, the system assumes communication has been lost. When this occurs, the safety node immediately publishes zero linear and angular velocity to /cmd_vel, stopping the robot. The robot will remain stopped until valid commands are received again.
+
+This protects the robot from continuing motion if:
+- a ROS node crashes
+- the navigation planner fails
+- communication between ROS nodes is interrupted
+
+the navigation planner fails
 ---
 
 ## 5. Git Infrastructure
