@@ -37,8 +37,20 @@ Hardware - Turtlebot 4
 Onboard Computer - Raspberry Pi 4 Model B
 
 ### Kinematic Model: Differential Drive
+The robot state is represented by its pose in the world frame:
 
-Perception Stack:
+$$
+x = \text{robot position along the x-axis}
+$$
+
+$$
+y = \text{robot position along the y-axis}
+$$
+
+$$
+\theta = \text{robot orientation (heading angle)}
+$$
+### Perception Stack:
 LiDAR - RPLidar A1
 Stereo Depth Camera - Luxonis OAK-D-Lite
 
