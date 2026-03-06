@@ -37,6 +37,17 @@ Hardware - Turtlebot 4
 Onboard Computer - Raspberry Pi 4 Model B
 
 ### Kinematic Model: Differential Drive
+Robot state vector represented as:
+
+$$
+\mathbf{x} =
+\begin{bmatrix}
+x \\
+y \\
+\theta
+\end{bmatrix}
+$$
+
 The robot state is represented by its pose in the world frame:
 
 $$
@@ -51,15 +62,18 @@ $$
 \theta = \text{robot orientation (heading angle)}
 $$
 
-Robot state vector represented as:
+The differential drive kinematic equations for the robot tell us how the robots pose changes over time as velocity commands are applied:
 
 $$
-\mathbf{x} =
-\begin{bmatrix}
-x \\
-y \\
-\theta
-\end{bmatrix}
+\dot{x} = v \cos(\theta)
+$$
+
+$$
+\dot{y} = v \sin(\theta)
+$$
+
+$$
+\dot{\theta} = \omega
 $$
 
 ### Perception Stack:
