@@ -50,6 +50,17 @@ $$
 $$
 \theta = \text{robot orientation (heading angle)}
 $$
+
+Robot state vector represented as:
+$$
+\mathbf{x} =
+\begin{bmatrix}
+x \\
+y \\
+\theta
+\end{bmatrix}
+$$
+
 ### Perception Stack:
 LiDAR - RPLidar A1
 Stereo Depth Camera - Luxonis OAK-D-Lite
