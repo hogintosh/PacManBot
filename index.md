@@ -6,6 +6,7 @@ nav_order: 1
 
 # Team Introduction
 **Sean Vellequette - hogintosh**
+
 I'm a graduate student in Robotics and Autonomous Systems at Arizona State University with a background in mechatronics, robotics, embedded systems, and intelligent manufacturing.
 
 My work focuses on building autonomous systems that integrate perception, control, and machine learning. I enjoy developing both simulation and real-world robotic platforms, including mobile robots, computer vision pipelines, and sensor-driven hardware systems.
