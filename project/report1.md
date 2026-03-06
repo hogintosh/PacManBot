@@ -86,7 +86,7 @@ Ros2 Jazzy Running on Ubuntu 24.04
 ---
 
 ## 3. High-Level System Architecture
-
+### Flow Diagram:
 ![HighLevelDiagram](/assets/images/HighLevelDiagram.png)
 
 
