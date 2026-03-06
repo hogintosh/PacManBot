@@ -10,9 +10,11 @@ Sean Vellequette - hogintosh
 Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
 Gabriel Sandys - GSandys7
+
 Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
 Abdirahman Aden - abdiaden3333
+
 Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
 # My Project Reports
