@@ -23,3 +23,5 @@ This is a *bare-minimum* template to create a Jekyll site that uses the [Just th
 
 <img width="1536" height="1024" alt="Turtleman" src="https://github.com/user-attachments/assets/32947084-e15c-4ed7-b0d8-e10b3e2f9823" />
 ![Turtleman](assets/images/Turtleman.png)
+![Turtleman](assets/images/turtleman.png)
+![Turtleman](assets/images/turtleman.png)
