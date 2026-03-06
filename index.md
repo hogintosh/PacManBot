@@ -5,7 +5,7 @@ nav_order: 1
 ---
 
 # Team Introduction
-##**Sean Vellequette - hogintosh**
+## **Sean Vellequette - hogintosh**
 
 I'm a graduate student in Robotics and Autonomous Systems at Arizona State University with a background in mechatronics, robotics, embedded systems, and intelligent manufacturing.
 
