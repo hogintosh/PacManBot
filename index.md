@@ -4,7 +4,7 @@ layout: home
 nav_order: 1
 ---
 ![Turtleman Banner](/assets/images/turtleman.png)
-# Team Introduction
+<img src="/assets/images/turtleman.png" alt="Turtleman Banner"># Team Introduction
 Sean Vellequette - hogintosh
 
 Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
