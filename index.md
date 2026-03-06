@@ -22,7 +22,19 @@ Many of my projects combine software and hardware, including ROS2 robots, roboti
 
 ### **Gabriel Sandys - GSandys7**
 
-Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
+I’m a graduate student in Robotics and Autonomous Systems at Arizona State University with a background in robotics software, autonomous systems, computer vision, and sensor-based inspection.
+
+My work focuses on building intelligent robotic systems that combine perception, control, and real-world deployment. I enjoy developing on physical robotic platforms, including mobile robots, robotic manipulators, machine vision systems, and non-destructive evaluation processes.
+
+My interests include:
+- Autonomous robotics and navigation
+- Robot perception and computer vision
+- Robotic manipulation and automation
+- Photogrammetry and LiDAR data analysis
+- Sensor integration and intelligent inspection
+- Control systems and real-world robotic deployment
+
+A lot of my projects combine both software and hardware, including quadrupedal robots, machine vision pipelines, robotic inspection systems, and automation-focused machine learning workflows.
 
 ### **Abdirahman Aden - abdiaden3333**
 
