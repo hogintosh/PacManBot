@@ -34,7 +34,7 @@ My interests include:
 - Sensor integration and intelligent inspection
 - Control systems and real-world robotic deployment
 
-A lot of my projects combine both software and hardware, including quadrupedal robots, machine vision pipelines, robotic inspection systems, and automation-focused machine learning workflows.
+A lot of my work has focused on building real-world robotic systems, from expanding the autonomy of Boston Dynamics Spot in high-hazard environments to developing LiDAR-based mapping and localization tools, ROS2 control frameworks for UR5 inspection systems, and vision-based dynamic tracking for robotic manipulation.
 
 ### **Abdirahman Aden - abdiaden3333**
 
