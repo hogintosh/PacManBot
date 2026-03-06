@@ -20,11 +20,11 @@ My interests include:
 
 Many of my projects combine software and hardware, including ROS2 robots, robotic manipulation systems, and machine learning pipelines
 
-**Gabriel Sandys - GSandys7**
+### **Gabriel Sandys - GSandys7**
 
 Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
-**Abdirahman Aden - abdiaden3333**
+### **Abdirahman Aden - abdiaden3333**
 
 Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
