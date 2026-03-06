@@ -21,4 +21,4 @@ Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
 This is a *bare-minimum* template to create a Jekyll site that uses the [Just the Docs] theme. You can easily set the created site to be published on [GitHub Pages] – the [README] file explains how to do that, along with other details.
 
-![Turtleman](assets/images/turtleman.png)
+![Turtleman](assets/images/Turtleman.png)
