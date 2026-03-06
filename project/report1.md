@@ -29,12 +29,22 @@ We aim to build a Pac-Man inspired autonomous mobile robot. This robot will loca
 ---
 
 ## 2. Technical Specifications
-### **Overview:** This project implements a Turtlebot 4 that is capable of mapping an indoor environment while performing dynamic path planning and execution. The robot integrates perception, state-estimation, and risk-aware pathing to win the virtual game of Pac-Man.
+### Overview: 
+This project implements a Turtlebot 4 that is capable of mapping an indoor environment while performing dynamic path planning and execution. The robot integrates perception, state-estimation, and risk-aware pathing to win the virtual game of Pac-Man.
 
-**Robot Platform:** Hardware - Turtlebot 4, Onboard Computer - Raspberry Pi 4 Model B, 
-**Kinematic Model:** Differential Drive
-**Perception Stack:** LiDAR - RPLidar A1, Stereo Depth Camera - OAK-D 
-**Operating System:** ROS 2 Running on Ubuntu 24.04
+### Robot Platform:
+Hardware - Turtlebot 4
+Onboard Computer - Raspberry Pi 4 Model B
+
+### Kinematic Model: Differential Drive
+
+Perception Stack:
+LiDAR - RPLidar A1
+Stereo Depth Camera - Luxonis OAK-D-Lite
+
+### Operating System:
+Ros2 Jazzy Running on Ubuntu 24.04
+
 ---
 
 ## 3. High-Level System Architecture
