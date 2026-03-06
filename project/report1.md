@@ -52,6 +52,7 @@ $$
 $$
 
 Robot state vector represented as:
+
 $$
 \mathbf{x} =
 \begin{bmatrix}
