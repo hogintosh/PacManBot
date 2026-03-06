@@ -6,6 +6,7 @@ has_children: true
 ---
 # Team Introduction
 Sean Vellequette - hogintosh
+
 Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
 Gabriel Sandys - GSandys7
