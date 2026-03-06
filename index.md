@@ -3,6 +3,18 @@ title: Home
 layout: home
 nav_order: 1
 ---
+# Team Introduction
+Sean Vellequette - hogintosh
+
+Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
+
+Gabriel Sandys - GSandys7
+
+Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
+
+Abdirahman Aden - abdiaden3333
+
+Robotics and Autonomous Systems (Concentration Systems Engineering) (Masters)
 
 ## This is the home page!
 
