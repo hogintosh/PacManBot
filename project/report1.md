@@ -22,65 +22,28 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 
 ---
 
-## 1. Mathematical Formulas
-The probability density function of a Gaussian distribution is defined as:
+## 1. Mission Statement
 
-$$p(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
-
-Where:
-- $$\mu$$ is the mean (peak location).
-- $$\sigma$$ is the standard deviation (width of the "bell").
+We aim to build a Pac-Man inspired autonomous mobile robot. This robot will localize and construct a 2D map of its environment and replans it motion to collect virtual pellets. While doing so the Pac-Man robot will have to avoid virtual ghosts using a dynamic risk-based path planning algorithm. These virtual ghosts will adhere to the same movement restrictions of the robot, as to not move through walls or objects.
 
 ---
 
-## 2. Code Implementation
+## 2. Technical Specifications
 
-Below is a snippet of the Python code used to process the assignment data.
-
-```python
-import numpy as np
-
-def calculate_velocity(displacement, time):
-    """Calculates average velocity."""
-    return np.divide(displacement, time)
-
-print(f"Result: {calculate_velocity(100, 20)} m/s")
-
-```
 
 ---
 
-## 3. Section & Sub-sections
-
-The sidebar will automatically highlight the section you are currently viewing.
-
-### 3.1 Observations
-
-* Observation A: The system remained stable under load.
-* Observation B: Latency increased during the second trial.
-
-### 3.2 Conclusion
-
-The experiment met all primary objectives. Future work should focus on optimizing the data pipeline.
+## 3. High-Level System Architecture
 
 ---
 
-## 4. Media
-
-You can include images by placing them in the `assets/images/` folder.
-
-![Alt text](../assets/images/logo.png){: width="500" }
-
-*Figure 1: Class Logo*
+## 4. Saftey and Operational Protocol
 
 ---
 
-## 5. Submission Checklist
+## 5. Git Infrastructure
 
-* [x] Complete Markdown documentation
-* [x] Verify LaTeX rendering
-* [x] Generate Mermaid flowchart
-* [ ] Peer review feedback
+---
 
 # Markdown Features
 
