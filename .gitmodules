@@ -1,0 +1,3 @@
+[submodule "project/code/PacManBot_ROS2"]
+	path = project/code/PacManBot_ROS2
+	url = https://github.com/GSandys7/PacManBot_ROS2.git
