@@ -167,6 +167,7 @@ When the E-Stop condition is met, the robot will:
 ## 5. Git Infrastructure
 - [View our GitHub repository](https://github.com/hogintosh/PacManBot)
 - [View our GitHub code repository](https://github.com/GSandys7/PacManBot_ROS2)
+
 (Note: At the moment the code repository is not added as a submodule. It is a submodule locally but for some permission reason we are unable to push to the regular repository. We will update ASAP)
 
 ---
