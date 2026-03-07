@@ -4,6 +4,7 @@ title: "Report 2"
 parent: Project
 nav_order: 2
 published: false
+nav_exclude: true
 ---
 # Report 2: YY
 
