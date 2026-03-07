@@ -114,7 +114,11 @@ If the estimated transformation exceeds what the TurtleBot could physically acco
 
 #### E-Stop Trigger Condition
 The E-Stop is triggered when:
-- the scan-to-scan pose transformation from SLAM exceeds the maximum physically possible linear or angular motion of the TurtleBot within the elapsed time interval
+- A LiDAR measurement from the scan topic falls below the critical safety distance, indicating an imminent collision risk.
+
+- The scan-to-scan pose transformation from SLAM exceeds the maximum physically possible linear or angular motion of the TurtleBot within the elapsed time interval.
+
+- Repeated abnormal pose transformations occur, indicating LiDAR scan misalignment or unstable localization rather than real robot motion.
 
 #### E-Stop Response
 When the E-Stop condition is met, the robot will:
