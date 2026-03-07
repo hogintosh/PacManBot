@@ -106,7 +106,7 @@ This protects the robot from continuing motion if:
 - communication between ROS nodes is interrupted
 
 ### LiDAR Misalignment Detection
-The second safety approach is based on LiDAR misalignment rejection during SLAM registration. In this method, the TurtleBot monitors the pose transformations produced by the SLAM system between consecutive scans. Since SLAM estimates the robot’s motion by aligning LiDAR scans over time, incorrect scan matching or sensor misalignment can sometimes generate unrealistic jumps in the robot’s estimated position or orientation.
+This saftey approach is based on LiDAR misalignment rejection during SLAM registration. In this method, the TurtleBot monitors the pose transformations produced by the SLAM system between consecutive scans. Since SLAM estimates the robot’s motion by aligning LiDAR scans over time, incorrect scan matching or sensor misalignment can sometimes generate unrealistic jumps in the robot’s estimated position or orientation.
 
 If the robot were to trust these incorrect transformations, it could attempt unsafe movements based on corrupted localization data. To prevent this, the system compares the SLAM-estimated scan-to-scan motion against the known physical motion limits of the TurtleBot. Because the robot has maximum achievable linear and angular speeds, it should not appear to move farther or rotate more than those limits allow within a given time interval.
 
