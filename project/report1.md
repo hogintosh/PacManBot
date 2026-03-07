@@ -113,8 +113,16 @@ If the robot were to trust these incorrect transformations, it could attempt uns
 If the estimated transformation exceeds what the TurtleBot could physically accomplish in that time, the update will be treated as a LiDAR or SLAM misalignment, and the system will trigger an emergency stop. This method functions as a localization sanity check, ensuring the robot does not continue moving when its pose estimate becomes physically impossible.
 
 #### E-Stop Trigger Condition
+The E-Stop is triggered when:
+- the scan-to-scan pose transformation from SLAM exceeds the maximum physically possible linear or angular motion of the TurtleBot within the elapsed time interval
 
 #### E-Stop Response
+When the E-Stop condition is met, the robot will:
+
+- immediately publish zero velocity commands
+- halt all navigation activity
+- reject further movement commands until localization stabilizes or the system is reset
+
 ---
 
 ## 5. Git Infrastructure
