@@ -171,25 +171,3 @@ When the E-Stop condition is met, the robot will:
 (Note: At the moment the code repository is not added as a submodule. It is a submodule locally but for some permission reason we are unable to push to the regular repository. We will update ASAP)
 
 ---
-
-# Markdown Features
-
-## Callouts
-> This is a note
-{: .note }
-
-> This is a warning
-{: .warning }
-
-## Buttons
-[Main Button](assignment1.html){: .btn .btn-primary }
-[Blue Button](assignment2.html){: .btn .btn-blue }
-[Blue Button](assignment3.html){: .btn .btn-red }
-
-## Tables
-
-| Header | Header |
-| :--- | :--- |
-| Cell | Cell |
-
----
