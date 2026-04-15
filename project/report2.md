@@ -35,40 +35,33 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 ---
 
 ## 3. Experimental Analysis & Validation
-
-
-
 ### 3.1 Noise & Uncertainty Analysis:
-
-* Observation A: The system remained stable under load.
-* Observation B: Latency increased during the second trial.
 
 ### 3.2 Run-Time Issues:
 
-The experiment met all primary objectives. Future work should focus on optimizing the data pipeline.
+
 
 ### 3.3 Milestone Video
 
 ---
 
-## 4. Media
+## 4. Project Management
 
 ### 4.1 Instructer Feedback Integration
 #### Comments: 
 Super cool project! Excellent write-up! You are the only team with a Table of Contents. Really well-thought out Safety Protocols.
 
-#### Fixes:
+#### Fixes: 
 1. Remove the stale "Markdown Features" section at the bottom
 
-#### Project Idea Feedback:
+#### Project Idea Feedback: 
 1. I am sure you would need a visual system for debugging, maybe use that for also showing the demo.
 2. You could add some auditory and visual (LED Ring) feedback when the robot interacts with virtual elements
 
-#### Questions/Clarifications:
+#### Questions/Clarifications: 
 1. Have you checked if there are any similar proejects out there in the AR/VR world?
 
 ### 4.2 Individual Contributions:
-### 4.2 Individual Contributions
 
 | Team Member         | Primary Technical Role (PTR) | Key Git Commits / PRs | Specific File(s) Authorship (Direct Links) |
 |--------------------|------------------------------|------------------------|-------------------------------------------|
