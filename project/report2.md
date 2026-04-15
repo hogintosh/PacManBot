@@ -3,10 +3,10 @@ layout: default
 title: "Report 2"
 parent: Project
 nav_order: 2
-published: false
-nav_exclude: true
+published: true
+nav_exclude: false
 ---
-# Report 2: YY
+# Milestone 2
 
 {: .no_toc }
 
@@ -23,84 +23,52 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 
 ---
 
-## 1. Mathematical Formulas
-The probability density function of a Gaussian distribution is defined as:
+## 1. Kinematics:
 
-$$p(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
-
-Where:
-- $$\mu$$ is the mean (peak location).
-- $$\sigma$$ is the standard deviation (width of the "bell").
 
 ---
 
-## 2. Code Implementation
+## 2. System Achitecture:
 
-Below is a snippet of the Python code used to process the assignment data.
 
-```python
-import numpy as np
-
-def calculate_velocity(displacement, time):
-    """Calculates average velocity."""
-    return np.divide(displacement, time)
-
-print(f"Result: {calculate_velocity(100, 20)} m/s")
-
-```
 
 ---
 
-## 3. Section & Sub-sections
+## 3. Experimental Analysis & Validation
 
-The sidebar will automatically highlight the section you are currently viewing.
 
-### 3.1 Observations
+
+### 3.1 Noise & Uncertainty Analysis:
 
 * Observation A: The system remained stable under load.
 * Observation B: Latency increased during the second trial.
 
-### 3.2 Conclusion
+### 3.2 Run-Time Issues:
 
 The experiment met all primary objectives. Future work should focus on optimizing the data pipeline.
+
+### 3.3 Milestone Video
 
 ---
 
 ## 4. Media
 
-You can include images by placing them in the `assets/images/` folder.
+### 4.1 Instructer Feedback Integration
+#### Comments: 
+Super cool project! Excellent write-up! You are the only team with a Table of Contents. Really well-thought out Safety Protocols.
+#### Fixes:
+1. Remove the stale "Markdown Features" section at the bottom
+#### Project Idea Feedback:
+1. I am sure you would need a visual system for debugging, maybe use that for also showing the demo.
+2. You could add some auditory and visual (LED Ring) feedback when the robot interacts with virtual elements
+#### Questions/Clarifications:
+1. Have you checked if there are any similar proejects out there in the AR/VR world?
 
-![Alt text](../assets/images/logo.png){: width="500" }
-
-*Figure 1: Class Logo*
-
----
-
-## 5. Submission Checklist
-
-* [x] Complete Markdown documentation
-* [x] Verify LaTeX rendering
-* [x] Generate Mermaid flowchart
-* [ ] Peer review feedback
-
-# Markdown Features
-
-## Callouts
-> This is a note
-{: .note }
-
-> This is a warning
-{: .warning }
-
-## Buttons
-[Main Button](assignment1.html){: .btn .btn-primary }
-[Blue Button](assignment2.html){: .btn .btn-blue }
-[Blue Button](assignment3.html){: .btn .btn-red }
-
-## Tables
-
-| Header | Header |
-| :--- | :--- |
-| Cell | Cell |
+### 4.2 Individual Contributions:
+| Team Member | Primary Technical Role | Key Git Commits/PRs | Specific File(s) Authorship (Direct Links) |
+| :--- | :--- | :--- | :--- |
+| Sean Vellequette | PTR | Git | File |
+| Gabriel Sandys | PTR | Git | Files |
+| Abdirahman Aden | PTR | Git | Files |
 
 ---
