@@ -68,10 +68,12 @@ Super cool project! Excellent write-up! You are the only team with a Table of Co
 1. Have you checked if there are any similar proejects out there in the AR/VR world?
 
 ### 4.2 Individual Contributions:
-| Team Member | Primary Technical Role | Key Git Commits/PRs | Specific File(s) Authorship (Direct Links) |
-| --- | --- | --- | --- |
-| Sean Vellequette | PTR | Git | File |
-| Gabriel Sandys | PTR | Git | Files |
-| Abdirahman Aden | PTR | Git | Files |
+### 4.2 Individual Contributions
+
+| Team Member         | Primary Technical Role (PTR) | Key Git Commits / PRs | Specific File(s) Authorship (Direct Links) |
+|--------------------|------------------------------|------------------------|-------------------------------------------|
+| Sean Vellequette   | PTR                          | Git                    | File                                      |
+| Gabriel Sandys     | PTR                          | Git                    | Files                                     |
+| Abdirahman Aden    | PTR                          | Git                    | Files                                     |
 
 ---
