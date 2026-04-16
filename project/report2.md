@@ -97,6 +97,178 @@ Thus, the robot controller converts the wheel motions (or equivalently the comma
 ## 2. System Achitecture:
 
 
+### 2.2 Module Descriptions
+
+Nodes are grouped by function.
+
+#### Custom Project Nodes
+
+| Node | Description |
+|------|------------|
+| /audio_node | Handles all robot audio output by selecting and publishing MIDI note sequences based on game events. |
+| /game_event_mapper | Central logic translator that converts high-level game events into coordinated actions across subsystems. |
+| /game_light_node | Controls LED behavior on the robot to visually represent game state changes. |
+| /pellet_manager | Maintains pellet positions, detects collection events, and updates the game state accordingly. |
+| /planner_stub | Determines navigation goals based on pellet positions and communicates with Nav2. |
+
+#### Localization / Mapping / Navigation
+
+| Node | Description |
+|------|------------|
+| /robot_15/amcl | Estimates robot pose using particle filtering with LiDAR and odometry. |
+| /robot_15/behavior_server | Executes recovery actions when navigation fails or requires adjustment. |
+| /robot_15/bt_navigator | Orchestrates navigation using a behavior tree architecture. |
+| /robot_15/controller_server | Converts planned paths into real-time velocity commands. |
+| /robot_15/planner_server | Computes global navigation paths. |
+| /robot_15/global_costmap/global_costmap | Maintains a global obstacle map. |
+| /robot_15/local_costmap/local_costmap | Maintains a local obstacle map for real-time navigation. |
+| /robot_15/smoother_server | Smooths navigation paths. |
+| /robot_15/velocity_smoother | Ensures smooth velocity transitions. |
+| /robot_15/waypoint_follower | Executes sequences of navigation goals. |
+| /robot_15/map_server | Publishes the static map used for localization. |
+| /robot_15/lifecycle_manager_localization | Manages lifecycle of localization components. |
+| /robot_15/lifecycle_manager_navigation | Manages lifecycle of navigation components. |
+| /robot_15/collision_monitor | Enforces safety constraints based on sensor input. |
+| /robot_15/docking_server | Handles docking operations. |
+| /robot_15/route_server | Supports route-based planning strategies. |
+
+#### Sensor / Perception / Input
+
+| Node | Description |
+|------|------------|
+| /robot_15/oakd | Provides RGB and depth data for perception. |
+| /robot_15/oakd_container | Runs OAK-D nodes in a composable architecture. |
+| /robot_15/rplidar_composition | Provides LiDAR scan data. |
+| /robot_15/joy_linux_node | Captures joystick input. |
+| /robot_15/teleop_twist_joy_node | Converts joystick input into robot motion commands. |
+
+#### Visualization / GUI
+
+| Node | Description |
+|------|------------|
+| /robot_15/rviz2 | Visualizes robot state, map, costmaps, and navigation behavior. |
+
+---
+#### Library Node Parameter Tuning
+
+No direct parameter tuning was performed on individual nodes within the TurtleBot’s core navigation stack (Nav2), as these were utilized as imported library components. However, all nodes were consistently namespaced through launch file parameters to ensure proper isolation, avoid topic conflicts, and maintain compatibility within the multi-node system architecture.
+
+The primary tuning effort was applied through the Nav2 configuration YAML file, which indirectly affects multiple internal nodes, particularly the global and local costmap layers. The most significant modification was reducing the inflation radius to **0.3 meters**.
+
+This change was motivated by observed behavior during testing. With the default inflation settings, LiDAR noise caused frequent fluctuations in the costmap, especially in narrow corridors. These fluctuations resulted in unstable obstacle boundaries, triggering repeated path replanning and occasional navigation failures.
+
+By reducing the inflation radius, the costmap became more stable, allowing the robot to better utilize available free space and navigate more smoothly through tight environments.
+
+Additionally, RViz2 was namespaced consistently with the rest of the system. Custom visualization markers were introduced for pellet positions, enabling clear, real-time visualization of game elements within the navigation map. This significantly improved debugging and system observability during testing.
+
+
+---
+
+### 2.3 Custom Node Deep Dive
+
+This section provides a detailed breakdown of each custom node developed for the PacManBot system. Each node is linked to its source implementation for reference.
+
+---
+
+#### /audio_node  
+**Source:** [audio_node.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_node.py)
+
+This node acts as the game’s sound dispatcher for the Create3 by subscribing to `/robot_15/game_sound` and translating incoming string-based sound requests into robot-playable note sequences.  
+
+When a message arrives, the callback validates the requested sound against the shared `SONGS` dictionary and ensures no other sound is currently playing using a busy flag. Valid requests are converted from MIDI notes into frequencies using `midi_to_freq()`, packaged into an `AudioNoteVector`, and sent as an `AudioNoteSequence` action goal to `/robot_15/audio_note_sequence`.  
+
+The node asynchronously handles goal acceptance and completion, clearing its busy state when playback finishes. This design allows other nodes to simply publish a string command while this node manages all low-level audio execution.
+
+---
+
+#### /game_light_node  
+**Source:** [game_light_node.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_light_node.py)
+
+This node functions as the lighting controller by subscribing to `/robot_15/game_light` and translating string commands into LED patterns published on `/robot_15/cmd_lightring`.  
+
+Its logic is organized around a dispatcher that maps commands to either static colors or animations such as startup, game over, power pellet, or ghost capture. Animations are implemented as frame sequences driven by a timer callback, which publishes LED frames one at a time.  
+
+Non-animated commands immediately override active animations and publish a solid color. This abstraction allows expressive visual feedback through simple commands.
+
+---
+
+#### /game_event_mapper  
+**Source:** [game_event_mapper.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_event_mapper.py)
+
+This node serves as the central event-to-behavior translator by subscribing to `/robot_15/game_event` and coordinating light, sound, and motion outputs.  
+
+Simple events trigger direct mappings, while complex events (such as death or theatrical start) invoke helper routines that combine multiple behaviors. For example:
+- **Death:** triggers sound, lights, and a timed shake motion using `/cmd_vel`
+- **Start theatrical:** triggers music, looping lights, and spin behavior  
+
+The node uses internal state flags and timers to manage asynchronous behaviors without blocking execution. It effectively acts as the orchestration layer of the system.
+
+---
+
+#### /pellet_manager  
+**Source:** [pellet_manager.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/pellet_manager.py)
+
+This node manages pellet placement and persistence within the map. At startup, it loads the occupancy grid map and samples valid pellet locations based on spacing and wall-clearance constraints.  
+
+Pellets are stored as a persistent world model and published as RViz markers on `/robot_15/pellet_markers`.  
+
+During runtime, the node listens for removal requests on `/robot_15/remove_pellet`, deletes pellets by ID, and republishes the updated set. Visualization is refreshed using a `DELETEALL` marker to ensure consistency in RViz.
+
+---
+
+#### /planner_stub  
+**Source:** [planner_stub.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/planner_stub.py)
+
+This node acts as a simple autonomous planner by selecting the nearest pellet and sending navigation goals to Nav2.  
+
+It subscribes to:
+- `/robot_15/amcl_pose` (robot position)
+- `/robot_15/pellet_markers` (pellet locations)
+
+On a timer, it computes distances to all pellets, selects the closest one, and sends a `NavigateToPose` goal. It then monitors the action lifecycle, handling feedback and results asynchronously.  
+
+Upon completion:
+- **Success:** triggers a pellet sound event  
+- **Failure:** removes the pellet to avoid repeated attempts  
+
+This node implements a greedy planning strategy while delegating motion execution to Nav2.
+
+---
+
+### 2.4 Module Declaration Table
+
+| Module / Node | Functional Domain | Software Type | Description | Status |
+|--------------|------------------|--------------|------------|--------|
+| LiDAR / Depth Camera | Perception | Library | Acquires raw LiDAR and RGB-D data from TurtleBot 4 sensors. | Completed |
+| SLAM Toolbox | Estimation | Library | Builds and maintains an occupancy grid map using LiDAR data. | Completed |
+| Robot Localization | Estimation | Library | Fuses odometry and IMU data using an EKF for improved pose estimation. | Completed |
+| Diff-Drive Controller | Motion Control / Actuation | Library | Executes velocity commands for robot movement. | Completed |
+| Sound and Light Effects | Game State | Custom | Handles synchronized audio and LED feedback based on game events. | Completed |
+| Ghost Path Behavior | Game State | Custom | Determines ghost movement logic based on robot position and environment. | Pending |
+| Risk-Reward Robot Path Planning | Planning | Custom | Plans robot movement using a tradeoff between pellet rewards and ghost risks. | Pending |
+
+---
+
+### Notable Changes
+
+- **Maze Generation Removed:** The original maze generation module was removed. Instead, the system now uses SLAM-generated maps directly, simplifying the pipeline and improving reliability.
+- **Localization Integration:** The robot is localized on the SLAM-generated map, which serves as the foundation for pellet placement and navigation.
+- **Audio & Visual Feedback Added:** Light and sound effects were introduced based on instructor feedback to enhance system observability and user experience.
+
+---
+
+### Overall System Status
+
+The system has reached a functional baseline and is ready for advanced game logic development. Currently, the system is capable of:
+
+- Generating a map using SLAM Toolbox  
+- Localizing the robot using AMCL  
+- Generating pellets as navigation waypoints  
+- Navigating to pellets using Nav2  
+- Removing pellets upon collection  
+- Triggering synchronized sound and lighting effects  
+
+Future work will focus on implementing ghost behaviors and risk-aware planning strategies.
 
 ---
 ## 3. Experimental Analysis & Validation
