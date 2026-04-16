@@ -341,7 +341,7 @@ This indicates that AMCL initialization introduces a small but measurable locali
 - Occasional spikes of ~10 degrees
 - Heading is more sensitive to sensor noise and scan alignment even in a controlled setting
 
-"MEAN METRICS FIGURE"
+![AMCL mean metrics](/assets/images/amcl_mean_metrics.png)
 - Mean Δt between samples is roughly the same. So the pose update frequency is looking consistent
 - Mean Δposition between samples shows little variation (~0.3m)
 - Mean |Δθ| varies more significantly between estimates (~1.7-3.6 degrees)
