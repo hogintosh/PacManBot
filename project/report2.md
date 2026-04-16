@@ -25,6 +25,7 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 
 ## 1. Kinematics:\subsection{Robot Kinematics}
 
+
 The PacManBot is modeled as a differential-drive mobile robot with state
 
 $$
@@ -36,7 +37,7 @@ y \\
 \end{bmatrix}
 $$
 
-where \(x\) and \(y\) denote the robot position in the global frame, and \(\theta\) is the robot heading angle. Since the TurtleBot 4 uses an iRobot Create 3 base, the robot follows differential-drive kinematics. Let \(v_L\) and \(v_R\) denote the left and right wheel linear velocities, respectively, \(r\) the wheel radius, and \(L\) the distance between the wheels.
+where $x$ and $y$ denote the robot position in the global frame, and $\theta$ is the robot heading angle. Since the TurtleBot 4 uses an iRobot Create 3 base, the robot follows differential-drive kinematics. Let $v_L$ and $v_R$ denote the left and right wheel linear velocities, respectively, $r$ the wheel radius, and $L$ the distance between the wheels.
 
 The body-frame linear and angular velocities are
 
@@ -78,26 +79,7 @@ $$
 \dot{\theta} = \omega
 $$
 
-Equivalently, in matrix form,
-
-$$
-\begin{bmatrix}
-\dot{x} \\
-\dot{y} \\
-\dot{\theta}
-\end{bmatrix}
-=
-\begin{bmatrix}
-\cos(\theta) & 0 \\
-\sin(\theta) & 0 \\
-0 & 1
-\end{bmatrix}
-\begin{bmatrix}
-v \\
-\omega
-\end{bmatrix}
-$$
-For discrete-time implementation with timestep \(\Delta t\), the state update is
+For discrete-time implementation with timestep ($\Delta t$), the state update is
 
 $$
 x_{k+1} = x_k + v_k \cos(\theta_k)\Delta t
@@ -111,8 +93,7 @@ $$
 \theta_{k+1} = \theta_k + \omega_k \Delta t
 $$
 
-Thus, the robot controller converts the wheel motions (or equivalently the commanded linear and angular velocity inputs) into updates of the robot pose \((x,y,\theta)\). This model is used for navigation, trajectory tracking, and pose propagation in the PacManBot system.
-
+Thus, the robot controller converts the wheel motions (or equivalently the commanded linear and angular velocity inputs) into updates of the robot pose $(x,y,\theta)$. This model is used for navigation, trajectory tracking, and pose propagation in the PacManBot system.
 ## 2. System Achitecture:
 
 
