@@ -96,6 +96,7 @@ $$
 Thus, the robot controller converts the wheel motions (or equivalently the commanded linear and angular velocity inputs) into updates of the robot pose $(x,y,\theta)$. This model is used for navigation, trajectory tracking, and pose propagation in the PacManBot system.
 ## 2. System Achitecture:
 
+![High Level Diagram Milestone 2]({{ "/assets/images/HighLevelDiagramMilestone2.png" | relative_url }})
 
 ### 2.2 Module Descriptions
 
