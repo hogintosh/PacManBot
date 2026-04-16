@@ -81,11 +81,22 @@ $$
 
 Equivalently, in matrix form,
 
+
 $$
 \begin{bmatrix}
 \dot{x} \\
 \dot{y} \\
 \dot{\theta}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos\theta & 0 \\
+\sin\theta & 0 \\
+0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+v \\
+\omega
 \end{bmatrix}
 $$
 =
