@@ -49,7 +49,7 @@ $$
 \omega = \frac{v_R - v_L}{L}
 $$
 
-If wheel angular velocities \(\dot{\phi}_L\) and \(\dot{\phi}_R\) are used instead of linear wheel velocities, then
+If wheel angular velocities ($\dot{\phi}_L$) and ($\dot{\phi}_R$) are used instead of linear wheel velocities, then
 
 $$
 v_L = r\dot{\phi}_L, \quad v_R = r\dot{\phi}_R
