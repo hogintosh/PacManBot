@@ -295,8 +295,8 @@ The experiments to characterize localization:
 
 ##### Test 1: AMCL Pose Initialization Results
 | Metric | Value |
-| --- | --- |
-| Number of Samples | 11 |
+|--------|-------|
+| Samples | 11 |
 | Mean X (m) | -0.2616 |
 | Mean Y (m) | 2.6982 |
 | Std Dev X (m) | 0.0350 |
