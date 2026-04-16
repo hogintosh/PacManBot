@@ -333,7 +333,8 @@ This indicates that AMCL initialization introduces a small but measurable locali
 - Low variance across trials means that for this straight line test the frequency was consistent
 - AMCL is event-driven from the odom and scan data
 
-"X AND Y OVER TIME PLOTS"
+![AMCL X Over Time]({{ "/assets/amcl_x_over_time.png" | relative_url }})
+![AMCL Y Over Time]({{ "/assets/amcl_y_over_time.png" | relative_url }})
 - No large spikes in straight line movement, so there is no localization jumps
 
 ![AMCL Theta Over Time]({{ "/assets/images/amcl_theta_over_time.png" | relative_url }})
