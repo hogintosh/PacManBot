@@ -87,6 +87,7 @@ $$
 \dot{y} \\
 \dot{\theta}
 \end{bmatrix}
+$$
 =
 \begin{bmatrix}
 \cos\theta & 0 \\
