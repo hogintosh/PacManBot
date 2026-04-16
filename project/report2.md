@@ -86,7 +86,6 @@ $$
 
 
 ---
-
 ## 3. Experimental Analysis & Validation
 ### 3.1 Noise & Uncertainty Analysis:
 
@@ -99,12 +98,12 @@ The experiments to characterize localization:
 1. Repeated Initialization Test (Pose Estimation Uncertainty)
 2. Repeated Navigation Trial (Motion-Based Uncertainty
 
-#### Test 1: Repeated Intialization (Stationary Test)
+#### Test 1: Repeated Initialization (Stationary Test)
 ##### Methodology:
 - Robot placed in a position in the generated map
-- AMCL was reinitialized multiple times using Nav2 inital pose tool
+- AMCL was reinitialized multiple times using Nav2 initial pose tool
 - Log /amcl_pose into a csv file for later processing
-- Repeat initialization 20 times
+- Repeat initialization 20 times producing 11 different AMCL estimates
 
 ##### Results:
 
@@ -119,10 +118,28 @@ The experiments to characterize localization:
 - repeated over 4 trials
 
 ##### Results:
+##### Test 1: AMCL Pose Initialization Results
+| Metric | Value |
+|------|------|
+| Number of Samples | 11 |
+| Mean X (m) | -0.2616 |
+| Mean Y (m) | 2.6982 |
+| Std Dev X (m) | 0.0350 |
+| Std Dev Y (m) | 0.0363 |
+| Mean Radial Spread (m) | 0.0481 |
+| Max Radial Spread (m) | 0.0735 |
 
+The AMCL pose estimate was evaluated by repeatedly initializing the robot at the same physical location using the 2D Pose Estimate tool. A total of 11 samples were collected.
+
+The results show a positional standard deviation of approximately 3.5 cm in both the X and Y directions, with a mean radial spread of 4.8 cm and a maximum deviation of 7.35 cm.
+
+This indicates that AMCL initialization introduces a small but measurable localization uncertainty, even when the robot remains stationary.
+
+##### Test 2: Navigation Trial Results
 
 ### 3.2 Run-Time Issues:
-/amcl_pose was not continously published while the robot was stationary unless big changes to the scan topic were observed.
+/amcl_pose was not continuously published while the robot was stationary unless big changes to the scan topic were observed, or if pose was reinitialized with Nav2.
+
 
 
 ### 3.3 Milestone Video
