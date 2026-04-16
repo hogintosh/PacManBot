@@ -24,62 +24,103 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 ---
 
 ## 1. Kinematics:
-Robot state vector represented as:
+\subsection{Robot Kinematics}
 
-$$
+The PacManBot is modeled as a differential-drive mobile robot with state
+
+\[
 \mathbf{x} =
 \begin{bmatrix}
-x \\
-y \\
-\theta
+x \\ y \\ \theta
 \end{bmatrix}
-$$
+\]
 
-The robot state is represented by its pose in the world frame:
+where \(x\) and \(y\) denote the robot position in the global frame, and
+\(\theta\) is the robot heading angle. Since the TurtleBot 4 uses an
+iRobot Create 3 base, the robot follows differential-drive kinematics. Let
+\(v_L\) and \(v_R\) denote the left and right wheel linear velocities,
+respectively, \(r\) the wheel radius, and \(L\) the distance between the
+wheels.
 
-$$
-x = \text{robot position along the x-axis}
-$$
+The body-frame linear and angular velocities are
 
-$$
-y = \text{robot position along the y-axis}
-$$
-
-$$
-\theta = \text{robot orientation (heading angle)}
-$$
-
-The control inputs to the robot are the left and right wheel velocities:
-
-$$
-v_L = \text{left wheel velocity}, \quad v_R = \text{right wheel velocity}
-$$
-
-These wheel velocities are mapped to the robot's linear and angular velocities by:
-
-$$
+\[
 v = \frac{v_R + v_L}{2}
-$$
+\]
 
-$$
+\[
 \omega = \frac{v_R - v_L}{L}
-$$
+\]
 
-where \(L\) is the distance between the two wheels.
+If wheel angular velocities \(\dot{\phi}_L\) and \(\dot{\phi}_R\) are used
+instead of linear wheel velocities, then
 
-The differential drive kinematic equations describe how the robot's state updates over time as these control inputs are applied:
+\[
+v_L = r\dot{\phi}_L, \qquad v_R = r\dot{\phi}_R
+\]
 
-$$
-\dot{x} = v \cos(\theta)
-$$
+and therefore
 
-$$
-\dot{y} = v \sin(\theta)
-$$
+\[
+v = \frac{r}{2}\left(\dot{\phi}_R + \dot{\phi}_L\right)
+\]
 
-$$
+\[
+\omega = \frac{r}{L}\left(\dot{\phi}_R - \dot{\phi}_L\right)
+\]
+
+The continuous-time kinematic model mapping control inputs to state rates is
+
+\[
+\dot{x} = v \cos\theta
+\]
+
+\[
+\dot{y} = v \sin\theta
+\]
+
+\[
 \dot{\theta} = \omega
-$$
+\]
+
+Equivalently, in matrix form,
+
+\[
+\begin{bmatrix}
+\dot{x} \\
+\dot{y} \\
+\dot{\theta}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos\theta & 0 \\
+\sin\theta & 0 \\
+0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+v \\
+\omega
+\end{bmatrix}
+\]
+
+For discrete-time implementation with timestep \(\Delta t\), the state update is
+
+\[
+x_{k+1} = x_k + v_k \cos(\theta_k)\Delta t
+\]
+
+\[
+y_{k+1} = y_k + v_k \sin(\theta_k)\Delta t
+\]
+
+\[
+\theta_{k+1} = \theta_k + \omega_k \Delta t
+\]
+
+Thus, the robot controller converts the wheel motions (or equivalently the
+commanded linear and angular velocity inputs) into updates of the robot pose
+\((x,y,\theta)\). This model is used for navigation, trajectory tracking, and
+pose propagation in the PacManBot system.
 
 ## 2. System Achitecture:
 
