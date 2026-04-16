@@ -336,7 +336,7 @@ This indicates that AMCL initialization introduces a small but measurable locali
 "X AND Y OVER TIME PLOTS"
 - No large spikes in straight line movement, so there is no localization jumps
 
-"Orientation Change |Δθ| FIGUREPLOT"
+![AMCL Theta Over Time]({{ "/assets/images/amcl_theta_over_time.png" | relative_url }})
 - Oreintation shows higher variability during the straight line test
 - Occasional spikes of ~10 degrees
 - Heading is more sensitive to sensor noise and scan alignment even in a controlled setting
