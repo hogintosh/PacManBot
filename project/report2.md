@@ -24,7 +24,62 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 ---
 
 ## 1. Kinematics:
+Robot state vector represented as:
 
+$$
+\mathbf{x} =
+\begin{bmatrix}
+x \\
+y \\
+\theta
+\end{bmatrix}
+$$
+
+The robot state is represented by its pose in the world frame:
+
+$$
+x = \text{robot position along the x-axis}
+$$
+
+$$
+y = \text{robot position along the y-axis}
+$$
+
+$$
+\theta = \text{robot orientation (heading angle)}
+$$
+
+The control inputs to the robot are the left and right wheel velocities:
+
+$$
+v_L = \text{left wheel velocity}, \quad v_R = \text{right wheel velocity}
+$$
+
+These wheel velocities are mapped to the robot's linear and angular velocities by:
+
+$$
+v = \frac{v_R + v_L}{2}
+$$
+
+$$
+\omega = \frac{v_R - v_L}{L}
+$$
+
+where \(L\) is the distance between the two wheels.
+
+The differential drive kinematic equations describe how the robot's state updates over time as these control inputs are applied:
+
+$$
+\dot{x} = v \cos(\theta)
+$$
+
+$$
+\dot{y} = v \sin(\theta)
+$$
+
+$$
+\dot{\theta} = \omega
+$$
 
 ## 2. System Achitecture:
 
