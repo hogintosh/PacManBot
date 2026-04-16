@@ -88,8 +88,8 @@ $$
 \end{bmatrix}
 =
 \begin{bmatrix}
-\cos\theta & 0 \\
-\sin\theta & 0 \\
+\cos(\theta) & 0 \\
+\sin(\theta) & 0 \\
 0 & 1
 \end{bmatrix}
 \begin{bmatrix}
@@ -97,7 +97,6 @@ v \\
 \omega
 \end{bmatrix}
 $$
-
 For discrete-time implementation with timestep \(\Delta t\), the state update is
 
 $$
