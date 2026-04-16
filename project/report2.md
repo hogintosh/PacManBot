@@ -290,19 +290,6 @@ The experiments to characterize localization:
 - Log /amcl_pose into a csv file for later processing
 - Repeat initialization 20 times producing 11 different AMCL estimates
 
-##### Results:
-
-
-#### Test 2: Repeated Navigation Trial (Motion-Based Uncertainty)
-##### Methodology:
-- Robot was placed by hand to a start location
-- The robot pose was initialized through Nav2 - AMCL
-- The robot goal coordinate was sent through Nav2
-- Robot navigated to the goal through nav2
-- /amcl_pose was logged and saved into a csv file
-- repeated over 4 trials
-
-##### Results:
 ##### Test 1: AMCL Pose Initialization Results
 | Metric | Value |
 |------|------|
@@ -314,13 +301,28 @@ The experiments to characterize localization:
 | Mean Radial Spread (m) | 0.0481 |
 | Max Radial Spread (m) | 0.0735 |
 
+##### Test 1: Conclusions
 The AMCL pose estimate was evaluated by repeatedly initializing the robot at the same physical location using the 2D Pose Estimate tool. A total of 11 samples were collected.
 
 The results show a positional standard deviation of approximately 3.5 cm in both the X and Y directions, with a mean radial spread of 4.8 cm and a maximum deviation of 7.35 cm.
 
 This indicates that AMCL initialization introduces a small but measurable localization uncertainty, even when the robot remains stationary.
 
+
+#### Test 2: Repeated Navigation Trial (Motion-Based Uncertainty)
+##### Methodology:
+- Robot was placed by hand to a start location
+- The robot pose was initialized through Nav2 - AMCL
+- The robot goal coordinate was sent through Nav2
+- Robot navigated to the goal through nav2
+- /amcl_pose was logged and saved into a csv file
+- repeated over 4 trials
+- 
 ##### Test 2: Navigation Trial Results
+
+Results
+
+
 
 ### 3.2 Run-Time Issues:
 /amcl_pose was not continuously published while the robot was stationary unless big changes to the scan topic were observed, or if pose was reinitialized with Nav2.
