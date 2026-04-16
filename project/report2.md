@@ -23,8 +23,7 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 
 ---
 
-## 1. Kinematics:
-\subsection{Robot Kinematics}
+## 1. Kinematics:\subsection{Robot Kinematics}
 
 The PacManBot is modeled as a differential-drive mobile robot with state
 
@@ -81,24 +80,12 @@ $$
 
 Equivalently, in matrix form,
 
-
 $$
 \begin{bmatrix}
 \dot{x} \\
 \dot{y} \\
 \dot{\theta}
 \end{bmatrix}
-=
-\begin{bmatrix}
-\cos\theta & 0 \\
-\sin\theta & 0 \\
-0 & 1
-\end{bmatrix}
-\begin{bmatrix}
-v \\
-\omega
-\end{bmatrix}
-$$
 =
 \begin{bmatrix}
 \cos\theta & 0 \\
