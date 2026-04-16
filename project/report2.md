@@ -28,64 +28,60 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 
 The PacManBot is modeled as a differential-drive mobile robot with state
 
-\[
+$$
 \mathbf{x} =
 \begin{bmatrix}
-x \\ y \\ \theta
+x \\ 
+y \\ 
+\theta
 \end{bmatrix}
-\]
+$$
 
-where \(x\) and \(y\) denote the robot position in the global frame, and
-\(\theta\) is the robot heading angle. Since the TurtleBot 4 uses an
-iRobot Create 3 base, the robot follows differential-drive kinematics. Let
-\(v_L\) and \(v_R\) denote the left and right wheel linear velocities,
-respectively, \(r\) the wheel radius, and \(L\) the distance between the
-wheels.
+where \(x\) and \(y\) denote the robot position in the global frame, and \(\theta\) is the robot heading angle. Since the TurtleBot 4 uses an iRobot Create 3 base, the robot follows differential-drive kinematics. Let \(v_L\) and \(v_R\) denote the left and right wheel linear velocities, respectively, \(r\) the wheel radius, and \(L\) the distance between the wheels.
 
 The body-frame linear and angular velocities are
 
-\[
+$$
 v = \frac{v_R + v_L}{2}
-\]
+$$
 
-\[
+$$
 \omega = \frac{v_R - v_L}{L}
-\]
+$$
 
-If wheel angular velocities \(\dot{\phi}_L\) and \(\dot{\phi}_R\) are used
-instead of linear wheel velocities, then
+If wheel angular velocities \(\dot{\phi}_L\) and \(\dot{\phi}_R\) are used instead of linear wheel velocities, then
 
-\[
-v_L = r\dot{\phi}_L, \qquad v_R = r\dot{\phi}_R
-\]
+$$
+v_L = r\dot{\phi}_L, \quad v_R = r\dot{\phi}_R
+$$
 
 and therefore
 
-\[
+$$
 v = \frac{r}{2}\left(\dot{\phi}_R + \dot{\phi}_L\right)
-\]
+$$
 
-\[
+$$
 \omega = \frac{r}{L}\left(\dot{\phi}_R - \dot{\phi}_L\right)
-\]
+$$
 
 The continuous-time kinematic model mapping control inputs to state rates is
 
-\[
+$$
 \dot{x} = v \cos\theta
-\]
+$$
 
-\[
+$$
 \dot{y} = v \sin\theta
-\]
+$$
 
-\[
+$$
 \dot{\theta} = \omega
-\]
+$$
 
 Equivalently, in matrix form,
 
-\[
+$$
 \begin{bmatrix}
 \dot{x} \\
 \dot{y} \\
@@ -101,26 +97,23 @@ Equivalently, in matrix form,
 v \\
 \omega
 \end{bmatrix}
-\]
+$$
 
 For discrete-time implementation with timestep \(\Delta t\), the state update is
 
-\[
+$$
 x_{k+1} = x_k + v_k \cos(\theta_k)\Delta t
-\]
+$$
 
-\[
+$$
 y_{k+1} = y_k + v_k \sin(\theta_k)\Delta t
-\]
+$$
 
-\[
+$$
 \theta_{k+1} = \theta_k + \omega_k \Delta t
-\]
+$$
 
-Thus, the robot controller converts the wheel motions (or equivalently the
-commanded linear and angular velocity inputs) into updates of the robot pose
-\((x,y,\theta)\). This model is used for navigation, trajectory tracking, and
-pose propagation in the PacManBot system.
+Thus, the robot controller converts the wheel motions (or equivalently the commanded linear and angular velocity inputs) into updates of the robot pose \((x,y,\theta)\). This model is used for navigation, trajectory tracking, and pose propagation in the PacManBot system.
 
 ## 2. System Achitecture:
 
