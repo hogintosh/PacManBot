@@ -323,14 +323,16 @@ This indicates that AMCL initialization introduces a small but measurable locali
 ##### Test 2: Navigation Trial Results
 ##### Update Timing for Adaptive Monte Carlo Localization
 
+
+
 ### Navigation Analysis Metrics
 
-| Trial        | Samples | Duration (s) | Mean Δt (s) | Std Δt (s) | Min Δt (s) | Max Δt (s) | Mean Δp (m) | Std Δp (m) | Max Δp (m) | Std X (m) | Std Y (m) | Mean Radial (m) | Max Radial (m) | Std θ (deg) | Mean \|Δθ\| (deg) | Max \|Δθ\| (deg) | σₓ (m) | σᵧ (m) | σθ (deg) |
-|--------------|---------|--------------|-------------|------------|------------|------------|-------------|------------|------------|-----------|-----------|-----------------|-----------------|-------------|--------------------|-------------------|--------|--------|----------|
-| amcl_t1.csv  | 10      | 11.65        | 1.29        | 0.13       | 0.99       | 1.44       | 0.343       | 0.023      | 0.381      | 0.877     | 0.464     | 0.865           | 1.560           | 5.30        | 3.61               | 11.65             | 0.671  | 0.712  | 26.72    |
-| amcl_t2.csv  | 12      | 12.93        | 1.18        | 0.07       | 1.10       | 1.31       | 0.310       | 0.019      | 0.340      | 0.881     | 0.593     | 0.923           | 1.709           | 2.25        | 1.94               | 4.36              | 0.412  | 0.474  | 20.80    |
-| amcl_t3.csv  | 11      | 11.76        | 1.18        | 0.07       | 1.03       | 1.28       | 0.299       | 0.031      | 0.344      | 0.787     | 0.510     | 0.810           | 1.565           | 2.38        | 2.61               | 6.69              | 0.275  | 0.295  | 18.07    |
-| amcl_t4.csv  | 12      | 12.82        | 1.17        | 0.12       | 1.00       | 1.46       | 0.287       | 0.022      | 0.322      | 0.869     | 0.476     | 0.862           | 1.636           | 1.62        | 1.75               | 6.76              | 0.316  | 0.311  | 18.90    |
+| Trial        | Samples | Duration (s) | Mean Δt (s) | Std Δt (s) | Mean Δp (m) | Std θ (deg) | Mean |Δθ| (deg) |
+| ---          | ---     | ---          | ---         | ---        | ---         | ---         | ---           |
+| amcl_t1.csv  | 10      | 11.65        | 1.29        | 0.13       | 0.343       | 5.30        | 3.61          |
+| amcl_t2.csv  | 12      | 12.93        | 1.18        | 0.07       | 0.310       | 2.25        | 1.94          |
+| amcl_t3.csv  | 11      | 11.76        | 1.18        | 0.07       | 0.299       | 2.38        | 2.61          |
+| amcl_t4.csv  | 12      | 12.82        | 1.17        | 0.12       | 0.287       | 1.62        | 1.75          |
 - AMCL update intervals are non-uniform, averaging 1.1-1.3 seconds
 - Low variance across trials means that for this straight line test the frequency was consistent
 - AMCL is event-driven from the odom and scan data
