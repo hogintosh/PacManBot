@@ -281,7 +281,7 @@ A map of the testing environment was first generated using slam_toolbox, and thi
 
 The experiments to characterize localization:
 1. Repeated Initialization Test (Pose Estimation Uncertainty)
-2. Repeated Navigation Trial (Motion-Based Uncertainty
+2. Repeated Navigation Trial (Motion-Based Uncertainty)
 
 #### Test 1: Repeated Initialization (Stationary Test)
 ##### Methodology:
@@ -317,11 +317,30 @@ This indicates that AMCL initialization introduces a small but measurable locali
 - Robot navigated to the goal through nav2
 - /amcl_pose was logged and saved into a csv file
 - repeated over 4 trials
-- 
+
 ##### Test 2: Navigation Trial Results
+##### Update Timing for Adaptive Monte Carlo Localization
 
-Results
+"CSV OF SAMPLING UPDATES"
+- AMCL update intervals are non-uniform, averaging 1.1-1.3 seconds
+- Low variance across trials means that for this straight line test the frequency was consistent
+- AMCL is event-driven from the odom and scan data
 
+"X AND Y OVER TIME PLOTS"
+- No large spikes in straight line movement, so there is no localization jumps
+
+"Orientation Change |Δθ| FIGUREPLOT"
+- Oreintation shows higher variability during the straight line test
+- Occasional spikes of ~10 degrees
+- Heading is more sensitive to sensor noise and scan alignment even in a controlled setting
+
+"MEAN METRICS FIGURE"
+- Mean Δt between samples is roughly the same. So the pose update frequency is looking consistent
+- Mean Δposition between samples shows little variation (~0.3m)
+- Mean |Δθ| varies more significantly between estimates (~1.7-3.6 degrees)
+
+##### Test 2 Conclusions:
+All trials follow similar global motion patterns, since we drove this robot in a straight line in the same part of the house. AMCL is able to provide stable position estimates during navigation, without large jumps between estimates. Pose updates were reliably published during our straight line tests. Orientation exhibits greater sensitivity and correction behavior, due to probabilistic filtering and sensor noise.
 
 
 ### 3.2 Run-Time Issues:
