@@ -357,6 +357,19 @@ All trials follow similar global motion patterns, since we drove this robot in a
 
 ### 3.3 Milestone Video
 
+The following video demonstrates the Milestone 2 system functionality, including mapping, localization, pellet visualization, and synchronized game feedback.
+
+<div style="text-align: center; margin: 1rem 0;">
+  <iframe
+    width="800"
+    height="450"
+    src="https://www.youtube.com/embed/GlcY-TSbGBQ"
+    title="Milestone 2 Video"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen>
+  </iframe>
+</div>
 ---
 
 ## 4. Project Management
