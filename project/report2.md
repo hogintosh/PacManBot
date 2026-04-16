@@ -37,8 +37,39 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 ## 3. Experimental Analysis & Validation
 ### 3.1 Noise & Uncertainty Analysis:
 
-### 3.2 Run-Time Issues:
+#### Experimental Setup:
+Localization performance was evaluated on the Turtlebot4 using Nav2 with maps generated from slam_toolbox. Robot pose estimation was provided by Adaptive Monte Carlo Localization (AMCL). To evaluate the localization uncertainty, the Turtlebot4 was tested in a real indoor environment.
 
+A map of the testing environment was first generated using slam_toolbox, and this map was used by the navigation stack for localization and path planning. The robot pose estimation used during navigation was obtained from Adaptive Monte Carlo Localization (AMCL). This works by fusing LiDAR data with odometry to estimate the robot's position in the map frame. 
+
+The experiments to characterize localization:
+1. Repeated Initialization Test (Pose Estimation Uncertainty)
+2. Repeated Navigation Trial (Motion-Based Uncertainty
+
+#### Test 1: Repeated Intialization (Stationary Test)
+##### Methodology:
+- Robot placed in a position in the generated map
+- AMCL was reinitialized multiple times using Nav2 inital pose tool
+- Log /amcl_pose into a csv file for later processing
+- Repeat initialization 20 times
+
+##### Results:
+
+
+#### Test 2: Repeated Navigation Trial (Motion-Based Uncertainty)
+##### Methodology:
+- Robot was placed by hand to a start location
+- The robot pose was initialized through Nav2 - AMCL
+- The robot goal coordinate was sent through Nav2
+- Robot navigated to the goal through nav2
+- /amcl_pose was logged and saved into a csv file
+- repeated over 4 trials
+
+##### Results:
+
+
+### 3.2 Run-Time Issues:
+/amcl_pose was not continously published while the robot was stationary unless big changes to the scan topic were observed.
 
 
 ### 3.3 Milestone Video
