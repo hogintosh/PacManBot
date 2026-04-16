@@ -24,7 +24,89 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 ---
 
 ## 1. Kinematics:
+\subsection{Robot Kinematics}
 
+The PacManBot is modeled as a differential-drive mobile robot with planar state
+
+\[
+\mathbf{x} =
+\begin{bmatrix}
+x \\
+y \\
+\theta
+\end{bmatrix},
+\]
+
+where \(x\) and \(y\) are the robot position in the map frame, and \(\theta\) is the robot heading.
+
+Let the right and left wheel angular velocities be \(\omega_r\) and \(\omega_l\), respectively.  
+If \(r\) is the wheel radius and \(L\) is the distance between the wheels, then the body-frame linear and angular velocities are
+
+\[
+v = \frac{r}{2}(\omega_r + \omega_l),
+\]
+
+\[
+\dot{\theta} = \omega = \frac{r}{L}(\omega_r - \omega_l).
+\]
+
+Thus, the continuous-time kinematic model is
+
+\[
+\dot{x} = v\cos\theta,
+\]
+
+\[
+\dot{y} = v\sin\theta,
+\]
+
+\[
+\dot{\theta} = \omega.
+\]
+
+Substituting the wheel-speed expressions gives
+
+\[
+\dot{x} = \frac{r}{2}(\omega_r + \omega_l)\cos\theta,
+\]
+
+\[
+\dot{y} = \frac{r}{2}(\omega_r + \omega_l)\sin\theta,
+\]
+
+\[
+\dot{\theta} = \frac{r}{L}(\omega_r - \omega_l).
+\]
+
+For a discrete-time implementation with timestep \(\Delta t\), the state update becomes
+
+\[
+x_{k+1} = x_k + v_k \cos(\theta_k)\Delta t,
+\]
+
+\[
+y_{k+1} = y_k + v_k \sin(\theta_k)\Delta t,
+\]
+
+\[
+\theta_{k+1} = \theta_k + \omega_k \Delta t.
+\]
+
+Equivalently, in terms of wheel angular velocities,
+
+\[
+x_{k+1} = x_k + \frac{r}{2}(\omega_{r,k} + \omega_{l,k})\cos(\theta_k)\Delta t,
+\]
+
+\[
+y_{k+1} = y_k + \frac{r}{2}(\omega_{r,k} + \omega_{l,k})\sin(\theta_k)\Delta t,
+\]
+
+\[
+\theta_{k+1} = \theta_k + \frac{r}{L}(\omega_{r,k} - \omega_{l,k})\Delta t.
+\]
+
+In the implemented ROS 2 system, the planner operates at the navigation level by sending target poses \((x,y)\) to Nav2, while localization provides the current robot pose \((x,y,\theta)\) through AMCL. The lower-level differential-drive controller then converts commanded body velocities \((v,\omega)\) into wheel motions.
 
 ---
 
