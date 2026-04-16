@@ -294,16 +294,10 @@ The experiments to characterize localization:
 - Repeat initialization 20 times producing 11 different AMCL estimates
 
 ##### Test 1: AMCL Pose Initialization Results
-| Metric | Value |
-|--------|-------|
-| Samples | 11 |
-| Mean X (m) | -0.2616 |
-| Mean Y (m) | 2.6982 |
-| Std Dev X (m) | 0.0350 |
-| Std Dev Y (m) | 0.0363 |
-| Mean Radial Spread (m) | 0.0481 |
-| Max Radial Spread (m) | 0.0735 |
 
+| Samples | Mean X (m) | Mean Y (m) | Std Dev X (m) | Std Dev Y (m) | Mean Radial Spread (m) | Max Radial Spread (m) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 11 | -0.2616 | 2.6982 | 0.0350 | 0.0363 | 0.0481 | 0.0735 |
 
 ##### Test 1: Conclusions
 The AMCL pose estimate was evaluated by repeatedly initializing the robot at the same physical location using the 2D Pose Estimate tool. A total of 11 samples were collected.
