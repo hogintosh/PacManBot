@@ -88,6 +88,9 @@ From a utilitarian perspective, PacManBot is ethically justified because it prov
 ### Justice Test
 From a justice perspective, the robot should operate reliably across different indoor environments. Since LiDAR, AMCL, and maps can fail under certain conditions, the system may be less reliable in spaces with glass, reflective objects, or poor map quality. Future work should improve robustness through better testing, sensor fusion, and clearer documentation of limitations. Based on the potential inconsistency in certain environmental conditions, it would mostly fail this test.
 
+### Virtue Test
+From a virtue ethics perspective, the engineers should be honest about what the robot can and cannot do. For this project, that means clearly reporting Nav2 failures, localization drift, pellet-planning limitations, and safety risks instead of overstating performance. Responsible engineers should prioritize safe testing, transparent results, and continuous improvement. Since testing used LiDAR obstacle detection, reactive navigation, controlled robot movement, and indoor testing, it would pass the virtue test.
+
 
 You can include images by placing them in the `assets/images/` folder.
 
