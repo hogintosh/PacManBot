@@ -25,14 +25,7 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 
 ---
 
-## 1.Graphical Abstract
-The probability density function of a Gaussian distribution is defined as:
-
-$$p(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
-
-Where:
-- $$\mu$$ is the mean (peak location).
-- $$\sigma$$ is the standard deviation (width of the "bell").
+## 1. PacManBot Abstract Diagram
 
 ---
 
