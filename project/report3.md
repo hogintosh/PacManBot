@@ -8,7 +8,7 @@ nav_exclude: false
 math: mathjax
 ---
 
-# Report 3: ZZ
+# Milestone 3:
 
 {: .no_toc }
 
