@@ -870,39 +870,16 @@ From a justice perspective, the robot should operate reliably across different i
 From a virtue ethics perspective, the engineers should be honest about what the robot can and cannot do. For this project, that means clearly reporting Nav2 failures, localization drift, pellet-planning limitations, and safety risks instead of overstating performance. Responsible engineers should prioritize safe testing, transparent results, and continuous improvement. Since testing used LiDAR obstacle detection, reactive navigation, controlled robot movement, and indoor testing, it would pass the virtue test.
 
 
-You can include images by placing them in the `assets/images/` folder.
+## 5. Individual Technical Contributions
 
-![Alt text](../assets/images/logo.png){: width="500" }
+The table below documents each team member’s primary technical role, representative Git commits, and directly authored or primarily maintained files. This section connects each contributor to concrete implementation work in the repository.
 
-*Figure 1: Class Logo*
+The table below documents each team member’s primary technical role, representative Git commits, and directly authored or primarily maintained files. This section connects each contributor to concrete implementation work in the repository.
 
----
-
-## 5. Custom Module Code Links
-
-* [x] Complete Markdown documentation
-* [x] Verify LaTeX rendering
-* [x] Generate Mermaid flowchart
-* [ ] Peer review feedback
-
-# Markdown Features
-
-## Callouts
-> This is a note
-{: .note }
-
-> This is a warning
-{: .warning }
-
-## Buttons
-[Main Button](assignment1.html){: .btn .btn-primary }
-[Blue Button](assignment2.html){: .btn .btn-blue }
-[Blue Button](assignment3.html){: .btn .btn-red }
-
-## Tables
-
-| Header | Header |
-| :--- | :--- |
-| Cell | Cell |
+| Team Member | Primary Technical Role (PTR) | Key Git Commits / PRs | Specific File(s) Authorship (Direct Links) |
+|---|---|---|---|
+| Sean Vellequette | System Integration, Audio Systems & Startup Support | [6bbc8db](https://github.com/GSandys7/PacManBot_ROS2/commit/6bbc8db802d131f4975ec78b6db0c8ef90d881f9), [8f1803e](https://github.com/GSandys7/PacManBot_ROS2/commit/8f1803e66162d8fdf67de1886dd00e19f09d3fee) | [PacManBot.rviz](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/rviz2/PacManBot.rviz), [audio_library.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_library.py), [audio_node.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_node.py), [wait_for_amcl_pose.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/wait_for_amcl_pose.py) |
+| Gabriel Sandys | Autonomous Planning, Clyde Behavior & Navigation Integration | [36a52a3](https://github.com/GSandys7/PacManBot_ROS2/commit/36a52a375269d61ebadbfdafdeb1c080b81fd57d), [a70386d](https://github.com/GSandys7/PacManBot_ROS2/commit/a70386da7272f17db15b6507a1bd490b9441e835), [65a8745](https://github.com/GSandys7/PacManBot_ROS2/commit/65a8745b50c26abe89f78442d7896332a23178d2) | [clyde_ghost_node.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/clyde_ghost_node.py), [game_light_node.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_light_node.py), [pellet_manager.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/pellet_manager.py), [planner_stub.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/planner_stub.py), [launch files](https://github.com/GSandys7/PacManBot_ROS2/tree/main/pacmanbot_package/launch), [game_state_demo_gui.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_state_demo_gui.py) *(secondary owner)* |
+| Abdirahman Aden | Game Event Logic, Game Controller & GUI Integration | [7365ba9 / 72e47dd](https://github.com/GSandys7/PacManBot_ROS2/commit/72e47dd9e2b1b0f3f9cbb37df7dec67722ccdd82), [c483625](https://github.com/hogintosh/PacManBot/commit/c4836258970f011ebe22fcf94ca0fa4c08a1a66b) | [game_controller.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_controller.py), [game_event_mapper.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_event_mapper.py), [game_state_demo_gui.py](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_state_demo_gui.py) *(primary owner)* |
 
 ---
