@@ -24,6 +24,18 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 {:toc}
 
 ---
+## Video Demonstration
+<div style="text-align: center; margin: 1rem 0;">
+  <iframe
+    width="800"
+    height="450"
+    src="https://www.youtube.com/embed/BEnlPjyQRDg?start=130"
+    title="Pacman Robot"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen>
+  </iframe>
+</div>
 
 ## 1. PacManBot Abstract Diagram
 ![Abstract Diagram]({{ '/assets/images/Abstract_Diagram.png' | relative_url }})
