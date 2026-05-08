@@ -47,6 +47,15 @@ The core technical contribution of the PacManBot system is a custom game-state a
 
 This section first gives the final updated module declaration table, then presents the custom software logic using pseudocode-style algorithms. This format is used to make the system logic easier to follow while still including the key mathematical relationships used by the planner, pellet manager, Clyde node, and game controller.
 
+#### Low Level System Diagram
+![High Level Diagram Milestone 2]({{ '/assets/images/HighLevelDiagramMilestone2.png' | relative_url }})
+
+#### rqt graph showing custom nodes
+![Computational Map - Custom Game Nodes]({{ '/assets/images/pacmanbot.png' | relative_url }})
+
+#### rqt graph showing custom nodes with library nodes
+![Computational Map - Full ROS 2 System]({{ '/assets/images/pacmanbot_with_turtlebot.png' | relative_url }})
+
 ---
 
 ### 2.1 Final Updated Module Declaration Table
