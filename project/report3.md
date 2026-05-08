@@ -100,7 +100,7 @@ You can include images by placing them in the `assets/images/` folder.
 
 ---
 
-## 5. Submission Checklist
+## 5. Custom Module Code Links
 
 * [x] Complete Markdown documentation
 * [x] Verify LaTeX rendering
