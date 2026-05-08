@@ -24,7 +24,7 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 
 ---
 
-## 1. Mathematical Formulas
+## 1.Graphical Abstract
 The probability density function of a Gaussian distribution is defined as:
 
 $$p(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
@@ -35,7 +35,7 @@ Where:
 
 ---
 
-## 2. Code Implementation
+## 2.Algorithm:
 
 Below is a snippet of the Python code used to process the assignment data.
 
@@ -52,7 +52,7 @@ print(f"Result: {calculate_velocity(100, 20)} m/s")
 
 ---
 
-## 3. Section & Sub-sections
+## 3. Benchmarking & Results
 
 The sidebar will automatically highlight the section you are currently viewing.
 
@@ -67,7 +67,7 @@ The experiment met all primary objectives. Future work should focus on optimizin
 
 ---
 
-## 4. Media
+## 4.Ethical Impact Statement
 
 You can include images by placing them in the `assets/images/` folder.
 
