@@ -671,15 +671,7 @@ Ensure:
 
 ##### Game State and Score Update Logic
 
-The score is updated when a pellet is collected:
-
-$$
-S_{t+1}
-=
-S_t + 1
-$$
-
-The collected pellet count is updated as:
+The score is updated when a pellet is collected. The collected pellet count is updated as:
 
 $$
 N_{\mathrm{collected}}(t+1)
