@@ -82,6 +82,11 @@ PacManBot moves autonomously using the TurtleBot 4 platform, ROS 2 Nav2, AMCL lo
 ### Bias and Hardware Limitations
 PacManBot depends heavily on TurtleBot 4 localization, LiDAR sensing, maps, and Nav2 navigation. This creates hardware-related bias because the robot may perform well in clear, mapped environments but poorly around glass, reflective surfaces, clutter, narrow passages, or areas where LiDAR returns are unreliable. AMCL localization may also become inaccurate if the map does not match the real environment. This means the robot’s performance is not equally reliable in all spaces.
 
+### Utilitarian Test
+From a utilitarian perspective, PacManBot is ethically justified because it provides educational value in ROS 2, Nav2, localization, autonomous planning, and human-robot interaction. However, these benefits only outweigh the risks if the system is tested safely, robot speed is controlled, and collected data is handled responsibly. In the scenario where there is no oversight with testing, it would fail the utilitarian test since the potential exposure of people/places would be detrimental.
+
+
+
 You can include images by placing them in the `assets/images/` folder.
 
 ![Alt text](../assets/images/logo.png){: width="500" }
