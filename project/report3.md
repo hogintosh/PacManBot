@@ -239,12 +239,31 @@ Ensure:
 27: end while
 ```
 
-The key pixel-to-world conversion used by the pellet manager is:
+##### Key Map-to-Pellet Logic
 
-```text
-x = u * R + x0
-y = (H - v) * R + y0
-```
+A candidate pellet pixel is accepted only if it is in free space:
+
+\[
+M(u,v) > T_f
+\]
+
+The pixel-to-world conversion is:
+
+\[
+x = uR + x_0
+\]
+
+\[
+y = (H-v)R + y_0
+\]
+
+where \(R\) is the map resolution, \((x_0,y_0)\) is the map origin, and \(H\) is the map image height. The \((H-v)\) term flips image coordinates into the ROS map frame.
+
+When a pellet is collected, the active pellet set is updated as:
+
+\[
+P_{t+1} = P_t \setminus \{p_i\}
+\]
 
 where `H` is the map image height. The `(H - v)` term flips image coordinates into the ROS map frame because image coordinates increase downward while ROS map coordinates increase upward.
 
@@ -302,23 +321,46 @@ Ensure:
 22: end while
 ```
 
+##### Clyde Prediction and Costmap Logic
+
 Clyde's simplified motion update can be written as:
 
-```text
-xc(t + dt) = xc(t) + vc * dt * unit_vector(target - xc(t))
-```
+\[
+\mathbf{x}_c(t+\Delta t)
+=
+\mathbf{x}_c(t)
++
+v_c \Delta t
+\frac{
+\mathbf{x}_{goal} - \mathbf{x}_c(t)
+}{
+\|\mathbf{x}_{goal} - \mathbf{x}_c(t)\|
+}
+\]
 
 Clyde is also represented in the navigation costmap as a local obstacle region:
 
-```text
-C_clyde(t) = all points within radius rc of Clyde position xc(t)
-```
+\[
+C_{\mathrm{clyde}}(t)
+=
+\left\{
+(x,y):
+\sqrt{(x-x_c(t))^2+(y-y_c(t))^2}
+\leq r_c
+\right\}
+\]
 
 The active navigation costmap can therefore be summarized as:
 
-```text
-C(t) = C_static ∪ C_sensor(t) ∪ C_clyde(t)
-```
+\[
+C(t)
+=
+C_{\mathrm{static}}
+\cup
+C_{\mathrm{sensor}}(t)
+\cup
+C_{\mathrm{clyde}}(t)
+\]
 
 Clyde affects the robot in two ways. First, the custom planner uses Clyde's pose to score risky pellets. Second, Nav2 uses Clyde's obstacle cloud in the local costmap so the robot can avoid Clyde during motion execution.
 
@@ -387,24 +429,61 @@ Ensure:
 
 The main scoring logic is:
 
-```text
-distance_to_robot:
-    dr(pi) = sqrt((xi - xr)^2 + (yi - yr)^2)
+##### Clyde-Aware Scoring and Escape Logic
 
-distance_to_clyde:
-    dc(pi) = sqrt((xi - xc)^2 + (yi - yc)^2)
+For each pellet \(p_i=(x_i,y_i)\), the robot-to-pellet distance is:
 
-Clyde risk:
-    Rc(pi) = max(0, rg - dc(pi)) * wg
+\[
+d_r(p_i)
+=
+\sqrt{(x_i-x_r)^2+(y_i-y_r)^2}
+\]
 
-Total pellet score:
-    J(pi) = dr(pi) + Rc(pi) + D(pi)
+The Clyde-to-pellet distance is:
 
-Selected pellet:
-    p* = argmin J(pi)
-```
+\[
+d_c(p_i)
+=
+\sqrt{(x_i-x_c)^2+(y_i-y_c)^2}
+\]
 
-The planner does not replace Nav2. It only selects the next strategic goal. Nav2 handles path planning, controller execution, and local obstacle avoidance.
+The Clyde risk penalty is:
+
+\[
+R_c(p_i)
+=
+\max(0,\ r_g-d_c(p_i))w_g
+\]
+
+Clyde's closing speed is estimated using the previous and current robot-Clyde distances:
+
+\[
+v_{\mathrm{close}}(t)
+=
+\frac{d_{rc}(t-\Delta t)-d_{rc}(t)}{\Delta t}
+\]
+
+The final pellet score is:
+
+\[
+J(p_i)
+=
+d_r(p_i)
++
+R_c(p_i)
++
+D(p_i)
+\]
+
+The selected pellet is:
+
+\[
+p^*
+=
+\arg\min_{p_i \in P_t} J(p_i)
+\]
+
+Here, \(D(p_i)\) is the escape-direction penalty. It increases the score of pellets that lie in Clyde's direction when Clyde is close or approaching. This causes the robot to prefer pellets that move it away from danger.
 
 ---
 
@@ -475,26 +554,35 @@ Ensure:
 32: end while
 ```
 
-The replanning condition is:
+##### Replanning, Collection, and Death Conditions
 
-```text
-Switch target if:
-    J(new_target) + m < J(current_target)
-```
+After the planner selects a target pellet, that pellet becomes the Nav2 goal:
 
-The pellet collection condition is:
+\[
+g_t = p^*
+\]
 
-```text
-Collected if:
-    distance(robot, pellet) <= rp
-```
+The planner only switches goals when the new target is better by at least the replan margin:
 
-The Clyde death condition is:
+\[
+J(p_{\mathrm{new}}) + m < J(p_{\mathrm{current}})
+\]
 
-```text
-Caught by Clyde if:
-    distance(robot, Clyde) <= rdeath
-```
+A pellet is collected when the robot enters the pickup radius:
+
+\[
+d_r(p_i) \leq r_p
+\]
+
+The robot is caught by Clyde when:
+
+\[
+d_{\mathrm{death}}(t)
+=
+\sqrt{(x_r(t)-x_c(t))^2+(y_r(t)-y_c(t))^2}
+\leq
+r_{\mathrm{death}}
+\]
 
 ---
 
@@ -571,17 +659,41 @@ Ensure:
 41: end while
 ```
 
-The score update is:
+##### Game State and Score Update Logic
 
-```text
-S(t + 1) = S(t) + 1
-```
+The score is updated when a pellet is collected:
 
-The round-based Clyde speed update is:
+\[
+S_{t+1}
+=
+S_t + 1
+\]
 
-```text
-v_clyde(round) = v_base + (round - 1) * v_step
-```
+The collected pellet count is updated as:
+
+\[
+N_{\mathrm{collected}}(t+1)
+=
+N_{\mathrm{collected}}(t)+1
+\]
+
+The round is complete when all spawned pellets have been collected:
+
+\[
+N_{\mathrm{collected}}(t)
+\geq
+N_{\mathrm{spawned}}
+\]
+
+Clyde's speed increases by round:
+
+\[
+v_c(R_t)
+=
+v_{\mathrm{base}}
++
+(R_t-1)v_{\mathrm{step}}
+\]
 
 ---
 
@@ -691,15 +803,31 @@ Ensure:
 15: end if
 ```
 
-The lightring state can be summarized as:
+##### Lightring State Logic
 
-```text
-Light state:
-    Lambda(t) = [LED1, LED2, LED3, LED4, LED5, LED6]
+The Create 3 lightring is modeled as a six-LED state vector:
 
-Each LED:
-    LED_i = [R_i, G_i, B_i]
-```
+\[
+\Lambda(t)
+=
+[\ell_1,\ell_2,\ell_3,\ell_4,\ell_5,\ell_6]
+\]
+
+Each LED stores an RGB command:
+
+\[
+\ell_i
+=
+[R_i,\ G_i,\ B_i]
+\]
+
+For static colors, the same RGB command is applied to all six LEDs:
+
+\[
+\Lambda(t)
+=
+[\ell,\ell,\ell,\ell,\ell,\ell]
+\]
 
 For static colors:
 
@@ -756,13 +884,17 @@ Ensure:
 13: Clear busy flag after playback finishes
 ```
 
+##### Audio Frequency Conversion
+
 The MIDI-to-frequency conversion is:
 
-```text
-f(m) = 440 * 2^((m - 69) / 12)
-```
+\[
+f(m)
+=
+440 \cdot 2^{\frac{m-69}{12}}
+\]
 
-where `m` is the MIDI note number.
+where \(m\) is the MIDI note number.
 
 ---
 
