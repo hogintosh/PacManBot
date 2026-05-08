@@ -52,7 +52,7 @@ Compared to the previous milestone, the system has expanded beyond a basic pelle
 
 | Module / Node | Functional Domain | Software Type | Description | Previous Milestone Status | Current Status | Change Since Previous Milestone |
 |---|---|---|---|---|---|---|
-| LiDAR Sensor / RPLiDAR | Perception | Library / Driver | Provides LiDAR scan data used by AMCL and Nav2 costmaps. | Completed | Completed | Active perception source for localization and navigation. |
+| LiDAR Sensor / Oak-d RGBD Camera | Perception | Library / Driver | Provides LiDAR scan data used by AMCL and Nav2 costmaps. | Completed | Completed | Active perception sources for localization, mapping and navigation. |
 | SLAM Toolbox | Mapping | Library | Used to build the saved occupancy grid map. | Completed | Completed | Runtime uses the saved map produced from SLAM. |
 | Robot Localization | Localization | Library | Estimates robot pose on the saved map. | Completed | Completed | Still required for planner and game-state logic. |
 | [Sound Effects / `/audio_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_node.py) | Game Feedback | Custom | Plays game sounds using Create 3 audio note sequences. | Completed | Completed | Still valid from previous milestone. |
