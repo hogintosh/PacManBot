@@ -3,8 +3,8 @@ layout: default
 title: "Report 3"
 parent: Project
 nav_order: 3
-published: false
-nav_exclude: true
+published: true
+nav_exclude: false
 ---
 
 # Report 3: ZZ
@@ -56,14 +56,19 @@ print(f"Result: {calculate_velocity(100, 20)} m/s")
 
 The sidebar will automatically highlight the section you are currently viewing.
 
-### 3.1 Observations
+### 3.1 Observations of Pacman Success 
+We wanted to evaluate the rate of success of the first round of the Pacman game under round 1 conditions. This data was a simple log of how many pellets were collected for each trial. This was to evaluate the escape and pathing behavior of pacman for 1 Ghost (Clyde).
 
-* Observation A: The system remained stable under load.
-* Observation B: Latency increased during the second trial.
+![Pellets Collected Per Trial]({{ site.baseurl }}/assets/images/Pellects_Collected_Per_Trial.png)
+
+![Pellet Collection Frequency Chart]({{ site.baseurl }}/assets/images/Pellet_Collection_Frequency_Chart.png)
 
 ### 3.2 Conclusion
+Under the baseline conditions for Clydes speed (0.25m/s), which is initialized for round 1, Pacman was able to complete the first round 30% of the time. However this rate of success can be improved given the qualitative notes that were taken during these trials. 30% of the trials only collected 7 pellets as the final pellet was located very far away from the robots starting position. Additionally, it seems like the last pellet was located in an area of the house that could easily be "Puppy Guarded" by Clyde. An image below shows this foul play.
 
-The experiment met all primary objectives. Future work should focus on optimizing the data pipeline.
+![Puppy Guarding]({{ site.baseurl }}/assets/images/Puppy_Guarding.png)
+
+This made the reliability of the custom Ghost-Aware path planning algorithm faulty. However if we exclude the last pellet collection, the path planning success rate jumps to 60%.
 
 ---
 
