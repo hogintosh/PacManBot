@@ -85,6 +85,8 @@ PacManBot depends heavily on TurtleBot 4 localization, LiDAR sensing, maps, and 
 ### Utilitarian Test
 From a utilitarian perspective, PacManBot is ethically justified because it provides educational value in ROS 2, Nav2, localization, autonomous planning, and human-robot interaction. However, these benefits only outweigh the risks if the system is tested safely, robot speed is controlled, and collected data is handled responsibly. In the scenario where there is no oversight with testing, it would fail the utilitarian test since the potential exposure of people/places would be detrimental.
 
+### Justice Test
+From a justice perspective, the robot should operate reliably across different indoor environments. Since LiDAR, AMCL, and maps can fail under certain conditions, the system may be less reliable in spaces with glass, reflective objects, or poor map quality. Future work should improve robustness through better testing, sensor fusion, and clearer documentation of limitations. Based on the potential inconsistency in certain environmental conditions, it would mostly fail this test.
 
 
 You can include images by placing them in the `assets/images/` folder.
