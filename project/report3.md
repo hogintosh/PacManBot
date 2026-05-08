@@ -40,7 +40,7 @@ Where:
 
 The core technical contribution of the PacManBot system is a custom game-state and decision-making layer built on top of the ROS 2 TurtleBot 4 and Nav2 navigation stack. Rather than replacing Nav2, the custom modules define the Pac-Man game behavior: pellet generation, pellet collection, Clyde ghost behavior, game-state transitions, scoring, sound feedback, light feedback, user interaction, and high-level goal selection.
 
-This section begins with the final updated module declaration table, then presents the formal algorithmic logic for the custom modules using state-space notation, scoring equations, update rules, and event-mapping functions.
+This section first gives the final updated module declaration table, then presents the custom software logic using pseudocode-style algorithms. This format is used to make the system logic easier to follow while still including the key mathematical relationships used by the planner, pellet manager, Clyde node, and game controller.
 
 ---
 
@@ -54,922 +54,705 @@ Compared to the previous milestone, the system has expanded beyond a basic pelle
 |---|---|---|---|---|---|---|
 | LiDAR Sensor / RPLiDAR | Perception | Library / Driver | Provides LiDAR scan data used by AMCL and Nav2 costmaps. | Completed | Completed | Active perception source for localization and navigation. |
 | SLAM Toolbox | Mapping | Library | Used to build the saved occupancy grid map. | Completed | Completed | Runtime uses the saved map produced from SLAM. |
-| AMCL / Robot Localization | Localization | Library | Estimates robot pose on the saved map. | Completed | Completed | Still required for planner and game-state logic. |
-| [Map Server / `map_01.yaml`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/maps/map_01.yaml) | Mapping Support | Library / Configured | Publishes the saved occupancy map. | Completed | Completed | Used by Nav2 and custom map-based modules. |
-| [Nav2 Planner Server](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/launch/nav2_custom.yaml) | Navigation Planning | Library / Configured | Computes global paths to selected goals. | Completed | Completed | Integrated with custom pellet goal selection. |
-| [Nav2 Controller Server](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/launch/nav2_custom.yaml) | Motion Control | Library / Configured | Tracks paths and generates velocity commands. | Completed | Completed | Uses tuned controller behavior for game navigation. |
-| [Local / Global Costmaps](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/launch/nav2_custom.yaml) | Navigation | Library / Configured | Represent static and dynamic obstacles. | Completed | Completed | Clyde is now included as a dynamic obstacle source. |
-| [Velocity Smoother](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/launch/nav2_custom.yaml) | Motion Control | Library / Configured | Smooths velocity commands. | Completed | Completed | Tuned for smoother high-speed navigation. |
-| [Collision Monitor](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/launch/nav2_custom.yaml) | Safety | Library / Configured | Applies safety constraints near obstacles. | Completed | Completed | Included as a safety layer. |
-| Diff-Drive Controller | Actuation | Library | Executes robot velocity commands. | Completed | Completed | No major change. |
-| RViz2 | Visualization | Library Application | Visualizes the map, robot pose, costmaps, pellets, Clyde, and game state. | Completed | Completed | Now extended with custom PacManBot game panel. |
+| Robot Localization | Localization | Library | Estimates robot pose on the saved map. | Completed | Completed | Still required for planner and game-state logic. |
 | [Sound Effects / `/audio_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_node.py) | Game Feedback | Custom | Plays game sounds using Create 3 audio note sequences. | Completed | Completed | Still valid from previous milestone. |
-| [Audio Library / `audio_library.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_library.py) | Game Feedback | Custom | Stores named MIDI note sequences used by `/audio_node`. | Completed | Completed | Supports centralized sound definitions for game events. |
 | [Light Effects / `/game_light_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_light_node.py) | Game Feedback | Custom | Displays game states using the Create 3 lightring. | Completed | Completed | Still valid from previous milestone. |
 | [Game Event Mapper / `/game_event_mapper`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_event_mapper.py) | Event Coordination | Custom | Maps high-level events to sound, light, and motion. | Completed | Completed | Still valid from previous milestone. |
 | [Pellet Manager / `/pellet_manager`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/pellet_manager.py) | Game World | Custom | Generates, publishes, removes, and resets pellets. | Completed baseline | Completed | Removal and reset behavior now clearly integrated. |
 | [Planner Stub / `/planner_stub`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/planner_stub.py) | Strategic Planning | Custom | Selects pellet goals, sends Nav2 goals, handles collection and Clyde risk. | Completed baseline | Completed / Improved | Now includes Clyde-aware scoring, replanning, death detection, and return-home behavior. |
-| [Ghost Path Behavior / `/clyde_ghost_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/clyde_ghost_node.py) | Game AI | Custom | Moves Clyde through the map and publishes Clyde as a marker and obstacle. | Pending | Completed baseline | Major new module added. |
+| [Ghost Path Behavior / `/clyde_ghost_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/clyde_ghost_node.py) | Game State | Custom | Moves Clyde through the map and publishes Clyde as a marker and obstacle. | Pending | Completed baseline | Major new module added. |
 | [Risk-Reward Robot Path Planning](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/planner_stub.py) | Strategic Planning | Custom | Chooses pellets using distance, Clyde risk, and threat direction. | Pending | Completed baseline | Implemented as high-level pellet scoring plus Nav2 costmap avoidance. |
 | [Game Controller / `/game_controller`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_controller.py) | Game State | Custom | Manages menu, start, running, death, complete, score, round, and reset states. | Not listed | Completed baseline | New major module added. |
 | [RViz Game Panel / `pacmanbot_rviz_plugins`](https://github.com/GSandys7/PacManBot_ROS2/tree/main/pacmanbot_rviz_plugins) | User Interface | Custom | Provides start/reset/status controls in RViz. | Not listed | Completed baseline | New interface module added. |
-| [RViz Panel Source / `game_panel.cpp`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_rviz_plugins/src/game_panel.cpp) | User Interface | Custom | Implements the RViz game panel behavior. | Not listed | Completed baseline | New interface module added. |
 | [Demo GUI / `/game_state_demo_gui`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_state_demo_gui.py) | Testing / UI | Custom | Allows manual testing of game events, lights, and sounds. | Not listed | Completed demo tool | New support tool added. |
 | [AMCL Wait Utility / `/wait_for_amcl_pose`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/wait_for_amcl_pose.py) | Startup Support | Custom | Waits for valid localization before game behavior begins. | Not listed | Completed | New startup reliability utility. |
-| [Package Entry Points / `setup.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/setup.py) | Build / Packaging | Custom Configuration | Registers the executable custom Python nodes. | Not listed | Completed | Confirms installed custom node entry points. |
-
-The OAK-D camera is not listed as an active module because the current PacManBot implementation does not directly use OAK-D image, depth, or point cloud topics. Navigation currently relies on the saved map, AMCL localization, LiDAR scan data, Nav2 costmaps, and the custom Clyde obstacle topic.
+| [Nav2 Custom Configuration / `nav2_custom.yaml`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/launch/nav2_custom.yaml) | Navigation Configuration | Library / Configured | Provides project-specific Nav2 tuning for planner, controller, costmaps, velocity smoothing, collision monitoring, and Clyde obstacle integration. | Basic Nav2 configuration | Completed / Tuned | Not a custom node, but updated to support game-speed navigation, tighter costmap inflation, and Clyde-aware obstacle avoidance through the local/global costmaps. |
 
 Overall, the system has progressed from a functional navigation baseline into a playable game baseline. It can localize on a saved SLAM map, generate pellets in valid map space, visualize pellets in RViz, select pellet targets using Clyde-aware scoring, navigate using Nav2, remove collected pellets, track score, spawn and move Clyde, represent Clyde as a dynamic obstacle, detect Clyde collision, trigger sound and lighting effects, run start/death/win/reset sequences, return home after death or completion, and provide operator controls through GUI and RViz tools.
 
 ---
 
-### 2.2 Formal Algorithm Logic
+### 2.2 Algorithm Logic and System Model
 
 The PacManBot system is modeled as a hybrid autonomy and game-control architecture. The custom modules define the game rules and high-level decision-making, while Nav2 provides lower-level path planning, controller execution, and costmap-based obstacle avoidance.
 
-The system is organized into the following layers:
+The system can be summarized by the following state representation:
 
-1. **Game World Layer:** generates pellets and maintains game objects on the map.
-2. **Ghost Layer:** controls Clyde, publishes his pose, and inserts him into the navigation costmap.
-3. **Game Controller Layer:** manages game state, score, round number, start/reset flow, death condition, and completion condition.
-4. **Strategic Planner Layer:** selects pellet goals using distance and Clyde-risk information.
-5. **Navigation Layer:** uses Nav2 to plan and execute movement toward selected goals while avoiding static and dynamic obstacles.
-6. **Feedback Layer:** maps game events to robot lights, sounds, and theatrical motion effects.
-7. **User Interface Layer:** provides game start/reset and demonstration controls through RViz or a GUI.
+```text
+State:
+    xr(t) = robot pose from AMCL = [xr, yr, theta]
+    xc(t) = Clyde pose = [xc, yc]
+    P(t)  = set of remaining pellets
+    G(t)  = current game state
+    S(t)  = current score
+    R(t)  = current round
+```
 
----
+The main game states are:
 
-#### 2.2.1 Overall System State
-
-At time step \(t\), the overall PacManBot state is represented as:
-
-$$
-s_t =
-\left[
-\mathbf{x}_r(t),
-\mathbf{x}_c(t),
-P_t,
-G_t,
-S_t,
-R_t
-\right]
-$$
-
-where the robot pose estimated by AMCL is:
-
-$$
-\mathbf{x}_r(t) =
-\begin{bmatrix}
-x_r(t) \\
-y_r(t) \\
-\theta_r(t)
-\end{bmatrix}
-$$
-
-Clyde's current position is:
-
-$$
-\mathbf{x}_c(t) =
-\begin{bmatrix}
-x_c(t) \\
-y_c(t)
-\end{bmatrix}
-$$
-
-The remaining pellet set is:
-
-$$
-P_t = \{p_1, p_2, ..., p_n\}
-$$
-
-The terms \(G_t\), \(S_t\), and \(R_t\) represent the current game state, score, and round number.
+```text
+G(t) ∈ {MENU, RETURNING_HOME, STARTING, RUNNING, DYING, COMPLETE}
+```
 
 Each pellet is represented as:
 
-$$
-p_i =
-\left[
-x_i,\ y_i,\ id_i
-\right]
-$$
+```text
+pi = [xi, yi, id_i]
+```
 
-where \((x_i,y_i)\) is the pellet position in the map frame and \(id_i\) is the marker identifier used for visualization and removal.
-
-The game state variable is modeled as:
-
-$$
-G_t \in
-\{
-\mathrm{Menu},
-\mathrm{ReturningHome},
-\mathrm{Starting},
-\mathrm{Running},
-\mathrm{Dying},
-\mathrm{Complete}
-\}
-$$
+where `(xi, yi)` is the pellet position in the map frame and `id_i` is the marker identifier used for visualization and removal.
 
 ---
 
-#### 2.2.2 Pellet Manager Algorithm
+#### Algorithm 1: Complete PacManBot Game Loop
 
-The `pellet_manager` node generates game pellets from the saved occupancy grid map. It loads the map image, identifies free space, rejects locations near walls, converts valid pixels into world coordinates, and publishes the remaining pellets as RViz markers.
+**Purpose:** Coordinate the overall game sequence from startup to gameplay, win, death, and reset.
 
-The saved map image is represented as:
+**Inputs:** Saved map, AMCL pose, pellet markers, Clyde pose, start/reset commands  
+**Outputs:** Game state, score, Nav2 goals, light events, sound events, reset commands
 
-$$
-M(u,v)
-$$
+```text
+Algorithm 1: Complete PacManBot Game Loop
 
-where \(u\) and \(v\) are pixel coordinates. A map pixel is treated as free space if:
+Require:
+    Saved occupancy map M
+    AMCL robot pose xr
+    Clyde pose xc
+    Pellet set P
+    Game command input
 
-$$
-M(u,v) > T_f
-$$
+Ensure:
+    Robot navigates toward pellets
+    Game state, score, Clyde behavior, lights, and audio are updated
 
-where the implemented free-space threshold is:
+1:  Load saved occupancy map M
+2:  Initialize game state G <- MENU
+3:  Wait until AMCL pose xr is available
+4:  Generate pellet set P from valid map cells
+5:  Initialize Clyde in valid map space
+6:  while system is running do
+7:      if start command received then
+8:          Reset score, pellets, Clyde, and round variables
+9:          Command robot to return home
+10:         Trigger theatrical start event
+11:         Enable planner autonomy
+12:         Set G <- RUNNING
+13:     end if
 
-$$
-T_f = 250
-$$
+14:     while G = RUNNING do
+15:         Update robot pose xr
+16:         Update Clyde pose xc
+17:         Update remaining pellet set P
+18:         Publish Clyde as a dynamic obstacle
+19:         Select best pellet using Algorithm 4
+20:         Send selected pellet to Nav2
+21:         Monitor pellet collection
+22:         Monitor Clyde collision
+23:         if pellet collected then
+24:             Remove pellet from P
+25:             Increment score
+26:             Publish pellet event
+27:         end if
+28:         if Clyde catches robot then
+29:             Cancel Nav2 goal
+30:             Disable autonomy
+31:             Publish death event
+32:             Set G <- DYING
+33:         end if
+34:         if all pellets collected then
+35:             Disable autonomy
+36:             Publish win event
+37:             Set G <- COMPLETE
+38:         end if
+39:     end while
 
-A pellet candidate must be far enough from obstacles. Define a square neighborhood around each candidate pixel:
-
-$$
-\mathcal{N}_r(u,v)
-=
-\{(a,b): |a-u| \leq r,\ |b-v| \leq r\}
-$$
-
-where \(r\) is the wall-clearance radius in pixels.
-
-A pellet candidate is valid if every cell in the neighborhood is free:
-
-$$
-\operatorname{valid}(u,v) =
-\begin{cases}
-1, & M(a,b) > T_f,\ \forall(a,b) \in \mathcal{N}_r(u,v) \\
-0, & \mathrm{otherwise}
-\end{cases}
-$$
-
-Valid pellet pixels are converted into map-frame world coordinates using:
-
-$$
-x = uR + x_0
-$$
-
-$$
-y = (H-v)R + y_0
-$$
-
-where \(R\) is the map resolution in meters per pixel, \((x_0,y_0)\) is the map origin, and \(H\) is the map image height.
-
-The initial pellet set is:
-
-$$
-P_0 =
-\{(x_i,y_i,id_i): \operatorname{valid}(u_i,v_i)=1\}
-$$
-
-During runtime, if pellet \(p_i\) is collected, it is removed from the active pellet set:
-
-$$
-P_{t+1} = P_t \setminus \{p_i\}
-$$
-
-The `pellet_manager` then republishes the updated marker array so the pellet disappears from RViz and is no longer considered by the planner.
-
----
-
-#### 2.2.3 Clyde Ghost Algorithm
-
-The `clyde_ghost_node` implements Clyde as a virtual ghost moving through the map. Clyde affects the robot in two ways: Clyde's pose is used by the custom planner as a strategic risk source, and Clyde is published as an obstacle source so Nav2 can avoid him through the local costmap.
-
-Clyde's state is represented as:
-
-$$
-\mathbf{x}_c(t) =
-\begin{bmatrix}
-x_c(t) \\
-y_c(t)
-\end{bmatrix}
-$$
-
-Clyde's current target is:
-
-$$
-\mathbf{x}_{c,\mathrm{goal}} =
-\begin{bmatrix}
-x_{\mathrm{goal}} \\
-y_{\mathrm{goal}}
-\end{bmatrix}
-$$
-
-Clyde is restricted to free map space. A Clyde cell is valid if it satisfies the same general free-space condition used by the pellet manager:
-
-$$
-M(u,v) > T_f
-$$
-
-A simplified continuous Clyde motion update is:
-
-$$
-\mathbf{x}_c(t+\Delta t)
-=
-\mathbf{x}_c(t)
-+
-v_c \Delta t
-\frac{
-\mathbf{x}_{c,\mathrm{goal}} - \mathbf{x}_c(t)
-}{
-\|\mathbf{x}_{c,\mathrm{goal}} - \mathbf{x}_c(t)\|
-}
-$$
-
-where \(v_c\) is Clyde's speed, \(\Delta t\) is the update period, and \(\mathbf{x}_{c,\mathrm{goal}}\) is Clyde's current target.
-
-Clyde is represented in the navigation system as a dynamic obstacle region:
-
-$$
-C_{\mathrm{clyde}}(t)
-=
-\{(x,y):
-\sqrt{(x-x_c(t))^2 + (y-y_c(t))^2}
-\leq r_c
-\}
-$$
-
-where \(r_c\) is Clyde's obstacle radius.
-
-The complete Nav2 costmap is represented as:
-
-$$
-C_t =
-C_{\mathrm{static}}
-\cup
-C_{\mathrm{sensor}}(t)
-\cup
-C_{\mathrm{clyde}}(t)
-$$
-
-where \(C_{\mathrm{static}}\) contains walls and static map obstacles, \(C_{\mathrm{sensor}}(t)\) contains live LiDAR obstacles, and \(C_{\mathrm{clyde}}(t)\) contains Clyde's dynamic obstacle representation.
-
-This allows Nav2 to perform local obstacle avoidance around Clyde without requiring the custom planner to manually generate every avoidance maneuver.
+40:     if G = DYING or G = COMPLETE then
+41:         Command robot to return home
+42:         Wait for reset or next start command
+43:     end if
+44: end while
+```
 
 ---
 
-#### 2.2.4 Strategic Planner Algorithm
+#### Algorithm 2: Pellet Generation and Removal
 
-The `planner_stub` node performs high-level pellet selection and sends selected goals to Nav2. It does not directly compute low-level velocity commands. Instead, it chooses the most appropriate pellet target based on distance, Clyde proximity, and Clyde threat direction.
+**Custom Node:** `pellet_manager`  
+**Purpose:** Convert the saved map into valid pellet locations and remove pellets when collected.
 
-For each pellet \(p_i\), the robot-to-pellet distance is:
+**Inputs:** Occupancy map image, map resolution, map origin, remove/reset requests  
+**Outputs:** Pellet marker array, updated pellet set
 
-$$
-d_r(p_i)
-=
-\sqrt{(x_i-x_r)^2 + (y_i-y_r)^2}
-$$
+```text
+Algorithm 2: Pellet Generation and Removal
 
-The Clyde-to-pellet distance is:
+Require:
+    Occupancy map image M
+    Map resolution R
+    Map origin (x0, y0)
+    Free-space threshold Tf
+    Pellet spacing s
+    Wall-clearance radius rw
 
-$$
-d_c(p_i)
-=
-\sqrt{(x_i-x_c)^2 + (y_i-y_c)^2}
-$$
+Ensure:
+    Pellets are placed only in valid free-space map locations
 
-Pellets near Clyde receive a risk penalty:
+1:  Load map YAML file
+2:  Load occupancy map image M
+3:  Read map resolution R and origin (x0, y0)
+4:  Convert spacing s and clearance rw from meters to pixels
+5:  Initialize empty pellet set P
+6:  for each candidate pixel (u, v) sampled at spacing s do
+7:      if M(u, v) <= Tf then
+8:          Reject candidate
+9:      else if candidate is too close to a wall then
+10:         Reject candidate
+11:     else
+12:         Convert pixel (u, v) to world position (x, y)
+13:         Assign pellet ID
+14:         Add pellet to P
+15:     end if
+16: end for
+17: Publish P as RViz marker array
 
-$$
-R_c(p_i)
-=
-\max(0,\ r_g - d_c(p_i))w_g
-$$
+18: while node is running do
+19:     if remove_pellet message received then
+20:         Remove pellet with matching ID from P
+21:         Republish updated marker array
+22:     end if
+23:     if reset_pellets service called then
+24:         Regenerate full pellet set P
+25:         Republish marker array
+26:     end if
+27: end while
+```
 
-where \(r_g\) is the ghost-risk radius and \(w_g\) is the ghost-risk weight.
+The key pixel-to-world conversion used by the pellet manager is:
 
-The implemented values are:
+```text
+x = u * R + x0
+y = (H - v) * R + y0
+```
 
-$$
-r_g = 2.0\ \mathrm{m}
-$$
-
-$$
-w_g = 3.0
-$$
-
-The robot-Clyde distance is:
-
-$$
-d_{rc}(t)
-=
-\sqrt{(x_r(t)-x_c(t))^2 + (y_r(t)-y_c(t))^2}
-$$
-
-Clyde's closing speed is approximated by:
-
-$$
-v_{\mathrm{close}}(t)
-=
-\frac{d_{rc}(t-\Delta t)-d_{rc}(t)}{\Delta t}
-$$
-
-Clyde is considered a threat if he is very close or if he is approaching within a warning radius:
-
-$$
-\operatorname{threat}(t)
-=
-\begin{cases}
-1, & d_{rc}(t) \leq r_e \\
-1, & d_{rc}(t) \leq r_w \ \mathrm{and}\ v_{\mathrm{close}}(t) \geq v_{\min} \\
-0, & \mathrm{otherwise}
-\end{cases}
-$$
-
-The implemented values are:
-
-$$
-r_e = 2.0\ \mathrm{m}
-$$
-
-$$
-r_w = 3.0\ \mathrm{m}
-$$
-
-$$
-v_{\min} = 0.03\ \mathrm{m/s}
-$$
-
-When Clyde is threatening, the planner penalizes pellets that lie in the same general direction as Clyde. Let:
-
-$$
-\mathbf{v}_{rc}
-=
-\begin{bmatrix}
-x_c-x_r \\
-y_c-y_r
-\end{bmatrix}
-$$
-
-and:
-
-$$
-\mathbf{v}_{rp_i}
-=
-\begin{bmatrix}
-x_i-x_r \\
-y_i-y_r
-\end{bmatrix}
-$$
-
-The directional alignment is:
-
-$$
-A(p_i)
-=
-\frac{
-\mathbf{v}_{rc} \cdot \mathbf{v}_{rp_i}
-}{
-\|\mathbf{v}_{rc}\|\|\mathbf{v}_{rp_i}\|
-}
-$$
-
-The direction penalty is:
-
-$$
-D(p_i)
-=
-\begin{cases}
-w_d(1+A(p_i)), & \operatorname{threat}(t)=1 \ \mathrm{and}\ A(p_i)>0 \\
-0, & \mathrm{otherwise}
-\end{cases}
-$$
-
-where the implemented direction penalty weight is:
-
-$$
-w_d = 5.0
-$$
-
-The complete score for each pellet is:
-
-$$
-J(p_i)
-=
-d_r(p_i)
-+
-R_c(p_i)
-+
-D(p_i)
-$$
-
-The selected pellet is:
-
-$$
-p^*
-=
-\arg\min_{p_i \in P_t} J(p_i)
-$$
-
-After selecting a pellet, the planner sends it to Nav2 as a `NavigateToPose` goal:
-
-$$
-g_t = p^*
-$$
-
-The lower-level Nav2 behavior can be represented as:
-
-$$
-u_t =
-\pi_{\mathrm{Nav2}}(\mathbf{x}_r(t), g_t, C_t)
-$$
-
-where \(u_t\) is the velocity command, \(\pi_{\mathrm{Nav2}}\) is the Nav2 navigation policy, \(\mathbf{x}_r(t)\) is the robot pose, \(g_t\) is the selected pellet goal, and \(C_t\) is the active costmap.
-
-The planner only replans if a new pellet is better than the current target by a margin:
-
-$$
-J(p_{\mathrm{new}}) + m < J(p_{\mathrm{current}})
-$$
-
-where:
-
-$$
-m = 0.3
-$$
-
-A pellet is considered collected if the robot is within the pickup radius:
-
-$$
-\operatorname{collected}(p_i)
-=
-\begin{cases}
-1, & d_r(p_i) \leq r_p \\
-0, & d_r(p_i) > r_p
-\end{cases}
-$$
-
-The implemented pickup radius is:
-
-$$
-r_p = 0.25\ \mathrm{m}
-$$
-
-The robot is caught by Clyde when:
-
-$$
-d_{\mathrm{death}}(t)
-=
-\sqrt{(x_r(t)-x_c(t))^2 + (y_r(t)-y_c(t))^2}
-$$
-
-and:
-
-$$
-d_{\mathrm{death}}(t) \leq r_{\mathrm{death}}
-$$
-
-The implemented death radius is:
-
-$$
-r_{\mathrm{death}} = 0.25\ \mathrm{m}
-$$
-
-The game transition is:
-
-$$
-G_{t+1}
-=
-\begin{cases}
-\mathrm{Death}, & d_{\mathrm{death}}(t) \leq r_{\mathrm{death}} \\
-G_t, & \mathrm{otherwise}
-\end{cases}
-$$
+where `H` is the map image height. The `(H - v)` term flips image coordinates into the ROS map frame because image coordinates increase downward while ROS map coordinates increase upward.
 
 ---
 
-#### 2.2.5 Game Controller Algorithm
+#### Algorithm 3: Clyde Ghost Motion and Obstacle Publishing
 
-The `game_controller` node manages the overall game state. This separates game logic from navigation logic. The planner only runs when the game controller publishes the command to enable autonomy.
+**Custom Node:** `clyde_ghost_node`  
+**Purpose:** Simulate Clyde as a moving ghost and publish him as both a game object and a dynamic obstacle.
 
-The main game-state transition is:
+**Inputs:** Occupancy map, reset command, Clyde speed command  
+**Outputs:** Clyde pose, Clyde marker, Clyde obstacle cloud
 
-$$
-\mathrm{Menu}
-\rightarrow
-\mathrm{ReturningHome}
-\rightarrow
-\mathrm{Starting}
-\rightarrow
-\mathrm{Running}
-$$
+```text
+Algorithm 3: Clyde Ghost Motion and Obstacle Publishing
 
-During the running state, two main terminal conditions are monitored:
+Require:
+    Occupancy map M
+    Free-space threshold Tf
+    Wall-clearance radius rw
+    Clyde speed vc
 
-$$
-\mathrm{Running}
-\rightarrow
-\mathrm{Complete}
-\quad \mathrm{if} \quad |P_t| = 0
-$$
+Ensure:
+    Clyde moves through valid map space and appears as a dynamic obstacle
 
-$$
-\mathrm{Running}
-\rightarrow
-\mathrm{Dying}
-\quad \mathrm{if} \quad d_{\mathrm{death}}(t) \leq r_{\mathrm{death}}
-$$
+1:  Load occupancy map M
+2:  Build valid free-space mask
+3:  Reject cells too close to walls
+4:  Select valid spawn cell for Clyde
+5:  Select valid target cell for Clyde
+6:  Plan or choose path through valid cells
+7:  while node is running do
+8:      if reset_clyde command received then
+9:          Select new valid spawn cell
+10:         Select new valid target cell
+11:     end if
+12:     if speed command received then
+13:         Update Clyde speed vc
+14:     end if
+15:     Move Clyde toward current target
+16:     if Clyde reaches target then
+17:         Select a new valid target cell
+18:     end if
+19:     Publish Clyde pose
+20:     Publish Clyde RViz marker
+21:     Publish Clyde obstacle cloud for Nav2 costmap
+22: end while
+```
 
-After death, the robot returns home:
+Clyde's simplified motion update can be written as:
 
-$$
-\mathrm{Dying}
-\rightarrow
-\mathrm{ReturningHome}
-\rightarrow
-\mathrm{Menu}
-$$
+```text
+xc(t + dt) = xc(t) + vc * dt * unit_vector(target - xc(t))
+```
 
-After round completion, the robot also returns home and prepares the next round:
+Clyde is also represented in the navigation costmap as a local obstacle region:
 
-$$
-\mathrm{Complete}
-\rightarrow
-\mathrm{ReturningHome}
-\rightarrow
-\mathrm{Menu}
-$$
+```text
+C_clyde(t) = all points within radius rc of Clyde position xc(t)
+```
 
-When a pellet is collected:
+The active navigation costmap can therefore be summarized as:
 
-$$
-S_{t+1} = S_t + R_p
-$$
+```text
+C(t) = C_static ∪ C_sensor(t) ∪ C_clyde(t)
+```
 
-where \(R_p\) is the pellet reward. In the current implementation:
-
-$$
-R_p = 1
-$$
-
-The number of collected pellets updates as:
-
-$$
-N_{\mathrm{collected}}(t+1)
-=
-N_{\mathrm{collected}}(t)+1
-$$
-
-The game is complete when:
-
-$$
-N_{\mathrm{collected}}(t) \geq N_{\mathrm{spawned}}
-$$
-
-The game controller increases Clyde's speed as rounds progress. Clyde's speed for round \(R_t\) is:
-
-$$
-v_c(R_t)
-=
-v_{\mathrm{base}}
-+
-(R_t-1)v_{\mathrm{step}}
-$$
-
-where:
-
-$$
-v_{\mathrm{base}} = 0.25\ \mathrm{m/s}
-$$
-
-and:
-
-$$
-v_{\mathrm{step}} = 0.05\ \mathrm{m/s}
-$$
-
-When the start service is called, the game controller resets round variables, commands the planner to return home, starts the theatrical start sequence, waits for Nav2 to be available, enables the planner, and transitions into the running state. When the reset service is called, the game controller disables the planner, resets pellets, resets Clyde, clears score and pellet counters, and returns the game state to menu.
+This means Clyde affects the robot in two ways. First, the custom planner uses Clyde's pose to score risky pellets. Second, Nav2 uses Clyde's obstacle cloud in the local costmap so the robot can avoid Clyde during motion execution.
 
 ---
 
-#### 2.2.6 Game Event Mapper Algorithm
+#### Algorithm 4: Clyde-Aware Pellet Selection
 
-The `game_event_mapper` node converts high-level game events into coordinated light, sound, and motion commands. It acts as an event dispatcher.
+**Custom Node:** `planner_stub`  
+**Purpose:** Select the best pellet target using robot distance, Clyde proximity, and Clyde threat direction.
 
-A game event is represented as:
+**Inputs:** Robot pose, Clyde pose, pellet set, game command  
+**Outputs:** Selected pellet goal, Nav2 action goal
 
-$$
-e_t \in E
-$$
+```text
+Algorithm 4: Clyde-Aware Pellet Selection
 
-where:
+Require:
+    Robot pose xr = (xr, yr)
+    Clyde pose xc = (xc, yc)
+    Remaining pellet set P
+    Ghost risk radius rg
+    Ghost risk weight wg
+    Direction penalty weight wd
 
-$$
-E =
-\{
-\mathrm{Start},
-\mathrm{StartTheatrical},
-\mathrm{Pellet},
-\mathrm{PowerPellet},
-\mathrm{ClydeKilled},
-\mathrm{Death},
-\mathrm{GameOver},
-\mathrm{Win},
-\mathrm{Reset}
-\}
-$$
+Ensure:
+    A pellet goal is selected using distance and Clyde risk
 
-The event mapper applies a function:
+1:  best_pellet <- None
+2:  best_score <- infinity
 
-$$
-f_{\mathrm{event}}: E \rightarrow (L_t, A_t, M_t)
-$$
+3:  for each pellet pi in P do
+4:      dr <- sqrt((pi.x - xr.x)^2 + (pi.y - xr.y)^2)
+5:      dc <- sqrt((pi.x - xc.x)^2 + (pi.y - xc.y)^2)
 
-where \(L_t\) is the light command, \(A_t\) is the audio command, and \(M_t\) is the optional motion behavior.
+6:      if dc < rg then
+7:          clyde_risk <- (rg - dc) * wg
+8:      else
+9:          clyde_risk <- 0
+10:     end if
 
-Examples include:
+11:     direction_penalty <- 0
+12:     if Clyde is threatening robot then
+13:         robot_to_clyde <- xc - xr
+14:         robot_to_pellet <- pi - xr
+15:         alignment <- dot(robot_to_clyde, robot_to_pellet)
+16:         if alignment > 0 then
+17:             direction_penalty <- wd * (1 + alignment)
+18:         end if
+19:     end if
 
-$$
-f_{\mathrm{event}}(\mathrm{Pellet})
-=
-(\mathrm{PelletLight},\ \mathrm{PelletSound},\ \varnothing)
-$$
+20:     score <- dr + clyde_risk + direction_penalty
 
-$$
-f_{\mathrm{event}}(\mathrm{Death})
-=
-(\mathrm{GameOverLight},\ \mathrm{DeathSound},\ \mathrm{ShakeMotion})
-$$
+21:     if score < best_score then
+22:         best_score <- score
+23:         best_pellet <- pi
+24:     end if
+25: end for
 
-$$
-f_{\mathrm{event}}(\mathrm{StartTheatrical})
-=
-(\mathrm{StartLights},\ \mathrm{ThemeSound},\ \mathrm{SpinMotion})
-$$
+26: return best_pellet
+```
 
-For start spin:
+The main scoring logic is:
 
-$$
-\omega_z(t) =
-\omega_{\mathrm{start}}
-$$
+```text
+distance_to_robot:
+    dr(pi) = sqrt((xi - xr)^2 + (yi - yr)^2)
 
-where:
+distance_to_clyde:
+    dc(pi) = sqrt((xi - xc)^2 + (yi - yc)^2)
 
-$$
-\omega_{\mathrm{start}} = 1.5\ \mathrm{rad/s}
-$$
+Clyde risk:
+    Rc(pi) = max(0, rg - dc(pi)) * wg
 
-for a duration of:
+Total pellet score:
+    J(pi) = dr(pi) + Rc(pi) + D(pi)
 
-$$
-T_{\mathrm{start}} = 8.0\ \mathrm{s}
-$$
+Selected pellet:
+    p* = argmin J(pi)
+```
 
-For death shake, the angular velocity alternates sign:
-
-$$
-\omega_z(t)
-=
-(-1)^k \omega_{\mathrm{shake}}
-$$
-
-where:
-
-$$
-\omega_{\mathrm{shake}} = 1.5\ \mathrm{rad/s}
-$$
-
-and the direction flips every:
-
-$$
-T_{\mathrm{flip}} = 0.25\ \mathrm{s}
-$$
+The planner does not replace Nav2. It only selects the next strategic goal. Nav2 handles path planning, controller execution, and local obstacle avoidance.
 
 ---
 
-#### 2.2.7 Game Light Node Algorithm
+#### Algorithm 5: Planner Execution and Replanning
 
-The `game_light_node` converts simple string commands into Create 3 lightring patterns. A lightring command is represented as:
+**Custom Node:** `planner_stub`  
+**Purpose:** Send pellet goals to Nav2, monitor progress, remove pellets, detect death, and replan when needed.
 
-$$
-L_t \in
-\{
-\mathrm{Start},
-\mathrm{GameOver},
-\mathrm{PowerPellet},
-\mathrm{Win},
-\mathrm{Pellet},
-\mathrm{ClydeCaught},
-\mathrm{Off},
-\mathrm{SolidColor}
-\}
-$$
+**Inputs:** AMCL pose, pellet markers, Clyde pose, game commands  
+**Outputs:** Nav2 goals, remove-pellet commands, game status messages
 
-The lightring has six LEDs, so the output light state is:
+```text
+Algorithm 5: Planner Execution and Replanning
 
-$$
-\Lambda_t =
-\{
-\ell_1,\ell_2,\ell_3,\ell_4,\ell_5,\ell_6
-\}
-$$
+Require:
+    AMCL pose xr
+    Pellet set P
+    Clyde pose xc
+    Game command stream
+    Replan margin m
+    Pellet pickup radius rp
+    Clyde death radius rdeath
 
-Each LED is represented as an RGB vector:
+Ensure:
+    Robot pursues pellets while avoiding unsafe game states
 
-$$
-\ell_i =
-\begin{bmatrix}
-r_i \\
-g_i \\
-b_i
-\end{bmatrix}
-$$
+1:  Wait for AMCL pose
+2:  Save first valid AMCL pose as home pose
+3:  Wait until game command is ENABLE
+4:  while planner is enabled do
+5:      Update robot pose xr
+6:      Update pellet set P
+7:      Update Clyde pose xc
 
-A static light command maps directly to a constant LED pattern:
+8:      if no active Nav2 goal then
+9:          target <- Clyde-Aware Pellet Selection(P, xr, xc)
+10:         Send target to Nav2
+11:     end if
 
-$$
-\Lambda_t =
-\{ \ell,\ell,\ell,\ell,\ell,\ell \}
-$$
+12:     if a better pellet exists by margin m then
+13:         Cancel current Nav2 goal
+14:         Select new pellet target
+15:         Send new target to Nav2
+16:     end if
 
-An animated command is represented as a sequence of frames:
+17:     for each pellet pi in P do
+18:         if distance(robot, pi) <= rp then
+19:             Publish remove_pellet(pi.id)
+20:             Publish pellet_collected status
+21:         end if
+22:     end for
 
-$$
-A =
-\{\Lambda_1,\Lambda_2,...,\Lambda_k\}
-$$
+23:     if distance(robot, Clyde) <= rdeath then
+24:         Cancel current Nav2 goal
+25:         Disable planner
+26:         Publish clyde_killed status
+27:     end if
 
-The animation timer publishes frames in order:
+28:     if P is empty then
+29:         Publish game_complete status
+30:         Disable planner
+31:     end if
+32: end while
+```
 
-$$
-\Lambda(t) = A[j]
-$$
+The replanning condition is:
 
-where:
+```text
+Switch target if:
+    J(new_target) + m < J(current_target)
+```
 
-$$
-j = t \bmod k
-$$
+The pellet collection condition is:
 
-for looping animations.
+```text
+Collected if:
+    distance(robot, pellet) <= rp
+```
 
----
+The Clyde death condition is:
 
-#### 2.2.8 Audio Node Algorithm
-
-The `audio_node` converts named sound commands into Create 3 audio note sequences. A sound command is represented as:
-
-$$
-A_t \in
-\{
-\mathrm{Start},
-\mathrm{PacmanTheme},
-\mathrm{Pellet},
-\mathrm{Powerup},
-\mathrm{Death},
-\mathrm{Win}
-\}
-$$
-
-Each sound is stored as a sequence of MIDI notes and durations:
-
-$$
-Q =
-\{(m_1,\tau_1),(m_2,\tau_2),...,(m_n,\tau_n)\}
-$$
-
-where \(m_i\) is a MIDI note number and \(\tau_i\) is the note duration.
-
-The MIDI note is converted into frequency using:
-
-$$
-f(m)
-=
-440 \cdot 2^{\frac{m-69}{12}}
-$$
-
-The final audio command is:
-
-$$
-A_t =
-\{(f(m_1),\tau_1),(f(m_2),\tau_2),...,(f(m_n),\tau_n)\}
-$$
-
-A busy flag prevents multiple sound sequences from overlapping:
-
-$$
-\operatorname{play}(A_t)
-=
-\begin{cases}
-1, & \mathrm{busy}=0 \\
-0, & \mathrm{busy}=1
-\end{cases}
-$$
+```text
+Caught by Clyde if:
+    distance(robot, Clyde) <= rdeath
+```
 
 ---
 
-#### 2.2.9 GUI and RViz Control Logic
+#### Algorithm 6: Game Controller State Machine
 
-The `game_state_demo_gui` provides manual buttons for publishing game events, light commands, and sound commands. The GUI applies a simple command-publishing function:
+**Custom Node:** `game_controller`  
+**Purpose:** Manage the full game state, including menu, start, running, death, completion, score, and round behavior.
 
-$$
-u_{\mathrm{gui}} \rightarrow e_t
-$$
+**Inputs:** Start/reset services, game status messages, pellet markers  
+**Outputs:** Game commands, game state, score, round, Clyde speed, game events
 
-where \(u_{\mathrm{gui}}\) is a user button press and \(e_t\) is the resulting game event or command.
+```text
+Algorithm 6: Game Controller State Machine
 
-The custom RViz panel provides integrated game controls and status visualization. It allows the operator to start or reset the game and view game progress, score, and round information while also seeing the robot, map, pellets, and Clyde in RViz.
+Require:
+    Start service
+    Reset service
+    Planner game_status messages
+    Pellet marker count
+    Base Clyde speed
+    Round speed increment
 
-The UI layer does not directly control low-level robot motion. Instead, it interacts with the game controller through services and topics:
+Ensure:
+    Game state and score remain consistent across the full game loop
 
-$$
-u_{\mathrm{rviz}}
-\rightarrow
-\mathrm{GameServiceCall}
-\rightarrow
-G_{t+1}
-$$
+1:  G <- MENU
+2:  score <- 0
+3:  round <- 1
+4:  pellets_collected <- 0
 
----
+5:  while game_controller is running do
+6:      if start service called then
+7:          score <- 0
+8:          pellets_collected <- 0
+9:          Publish game_command RETURN_HOME
+10:         Publish game_event START_THEATRICAL
+11:         Publish Clyde speed for current round
+12:         Publish game_command ENABLE
+13:         G <- RUNNING
+14:     end if
 
-#### 2.2.10 AMCL Wait Utility Logic
+15:     if reset service called then
+16:         Publish game_command DISABLE
+17:         Reset pellets
+18:         Reset Clyde
+19:         score <- 0
+20:         pellets_collected <- 0
+21:         G <- MENU
+22:     end if
 
-The `wait_for_amcl_pose` utility node supports system startup by waiting until localization is available. Since many game behaviors require a valid robot pose, dependent nodes should not begin active behavior until AMCL has produced a pose estimate.
+23:     if game_status = PELLET_COLLECTED then
+24:         pellets_collected <- pellets_collected + 1
+25:         score <- score + 1
+26:         Publish score
+27:         Publish game_event PELLET
+28:     end if
 
-This requirement is written as:
+29:     if game_status = GAME_COMPLETE then
+30:         Publish game_command DISABLE
+31:         Publish game_event WIN
+32:         G <- COMPLETE
+33:         Publish game_command RETURN_HOME
+34:     end if
 
-$$
-\mathbf{x}_r(t) \neq \varnothing
-$$
+35:     if game_status = CLYDE_KILLED then
+36:         Publish game_command DISABLE
+37:         Publish game_event DEATH
+38:         G <- DYING
+39:         Publish game_command RETURN_HOME
+40:     end if
+41: end while
+```
 
-Only after receiving a valid pose can the game safely initialize the home position and begin autonomous navigation.
+The score update is:
 
----
+```text
+S(t + 1) = S(t) + 1
+```
 
-#### 2.2.11 Complete System Algorithm
+The round-based Clyde speed update is:
 
-The complete PacManBot custom algorithm is summarized below.
-
-1. Load the saved occupancy map \(M\).
-2. Generate the initial pellet set \(P_0\) from valid free-space cells.
-3. Initialize Clyde in valid map space.
-4. Wait for AMCL to provide robot pose \(\mathbf{x}_r(t)\).
-5. Initialize the game controller in the menu state.
-6. When the start command is received:
-   1. Disable planner autonomy.
-   2. Reset pellets and Clyde.
-   3. Command the robot to return home.
-   4. Trigger the theatrical start event.
-   5. Enable planner autonomy.
-   6. Set \(G_t = \mathrm{Running}\).
-7. While \(G_t = \mathrm{Running}\):
-   1. Update robot pose \(\mathbf{x}_r(t)\).
-   2. Update Clyde pose \(\mathbf{x}_c(t)\).
-   3. Publish Clyde as a costmap obstacle \(C_{\mathrm{clyde}}(t)\).
-   4. Update remaining pellet set \(P_t\).
-   5. For each pellet \(p_i \in P_t\), compute score \(J(p_i)\).
-   6. Select \(p^* = \arg\min_{p_i \in P_t} J(p_i)\).
-   7. Send \(p^*\) to Nav2 as a navigation goal.
-   8. Nav2 computes robot motion using \(C_t = C_{\mathrm{static}} \cup C_{\mathrm{sensor}}(t) \cup C_{\mathrm{clyde}}(t)\).
-   9. If the robot enters a pellet pickup radius, remove the pellet.
-   10. Update score and publish the pellet event.
-   11. If Clyde catches the robot, publish the death event and disable autonomy.
-   12. If all pellets are collected, publish the win event and disable autonomy.
-8. Map game events to lights, sounds, and optional motion effects.
-9. After death or completion, return the robot home.
-10. Wait for reset or next start command.
-
----
-
-#### 2.2.12 Module Interaction Summary
-
-The custom modules work together through ROS 2 topics, services, and actions.
-
-| Module | Inputs | Outputs | Algorithmic Role |
-|---|---|---|---|
-| `pellet_manager` | Map image, remove/reset requests | Pellet markers | Generates and maintains pellet world model. |
-| `clyde_ghost_node` | Map image, reset/speed commands | Clyde pose, marker, obstacle cloud | Simulates ghost motion and dynamic obstacle behavior. |
-| `planner_stub` | AMCL pose, pellets, Clyde pose, game commands | Nav2 goals, pellet removal, game status | Selects goals and monitors collection/death. |
-| `game_controller` | Game status, pellet markers, start/reset services | Game commands, game state, score, round, Clyde speed | Controls full game state machine. |
-| `game_event_mapper` | Game events | Light commands, sound commands, motion commands | Converts abstract events into robot behaviors. |
-| `game_light_node` | Light commands | Create 3 lightring messages | Produces visual game feedback. |
-| `audio_node` | Sound commands | Create 3 audio note actions | Produces audio game feedback. |
-| `game_state_demo_gui` | User button presses | Manual game/light/sound commands | Supports testing and demonstration. |
-| `wait_for_amcl_pose` | AMCL pose | Startup readiness | Ensures localization is available before gameplay. |
-| `pacmanbot_rviz_plugins` | User input/game topics | Start/reset/status interface | Provides integrated RViz control and monitoring. |
+```text
+v_clyde(round) = v_base + (round - 1) * v_step
+```
 
 ---
 
-#### 2.2.13 Algorithm Summary
+#### Algorithm 7: Game Event Mapping
 
-The PacManBot system is a hybrid autonomy and game-control architecture. The custom software does not attempt to replace existing ROS 2 navigation libraries. Instead, it adds a game-specific intelligence layer above Nav2.
+**Custom Node:** `game_event_mapper`  
+**Purpose:** Convert abstract game events into light commands, sound commands, and optional robot motion effects.
 
-The `pellet_manager` creates the game objectives from the map. The `clyde_ghost_node` creates a moving ghost that acts both as a game threat and as a dynamic navigation obstacle. The `planner_stub` selects pellet goals using distance and Clyde-risk scoring, while Nav2 handles path planning and local obstacle avoidance. The `game_controller` manages the overall game state, including start, reset, score, round progression, death, and completion. The `game_event_mapper`, `game_light_node`, and `audio_node` translate game events into physical feedback through robot lights, sound, and motion.
+**Inputs:** Game event string  
+**Outputs:** Game light command, game sound command, optional `cmd_vel`
 
-This division of responsibility allows the system to combine custom Pac-Man game logic with robust library-based robot navigation.
+```text
+Algorithm 7: Game Event Mapping
+
+Require:
+    Game event e
+
+Ensure:
+    Each game event produces the correct robot feedback behavior
+
+1:  Receive game event e
+
+2:  if e = START_THEATRICAL then
+3:      Publish light command START
+4:      Publish sound command PACMAN_THEME
+5:      Execute timed spin motion
+6:  else if e = PELLET then
+7:      Publish light command PELLET
+8:      Publish sound command PELLET
+9:  else if e = POWER_PELLET then
+10:     Publish light command POWER_PELLET
+11:     Publish sound command POWERUP
+12: else if e = DEATH or e = GAME_OVER then
+13:     Publish light command GAME_OVER
+14:     Publish sound command DEATH
+15:     Execute timed shake motion
+16: else if e = WIN then
+17:     Publish light command WIN
+18:     Publish sound command WIN
+19: else if e = RESET then
+20:     Publish light command OFF
+21:     Publish zero velocity command
+22: end if
+```
+
+The event mapping can be summarized as:
+
+```text
+game_event -> (light_command, sound_command, optional_motion)
+```
+
+Examples:
+
+```text
+PELLET            -> (PELLET_LIGHT, PELLET_SOUND, none)
+DEATH             -> (GAME_OVER_LIGHT, DEATH_SOUND, SHAKE_MOTION)
+START_THEATRICAL  -> (START_LIGHTS, THEME_SOUND, SPIN_MOTION)
+```
+
+---
+
+#### Algorithm 8: Light Feedback
+
+**Custom Node:** `game_light_node`  
+**Purpose:** Convert light commands into Create 3 lightring colors and animations.
+
+**Inputs:** Light command string  
+**Outputs:** Create 3 `cmd_lightring` messages
+
+```text
+Algorithm 8: Light Feedback
+
+Require:
+    Light command L
+
+Ensure:
+    Robot lightring displays the current game state
+
+1:  Receive light command L
+2:  Stop active animation if command overrides it
+3:  if L is a static color command then
+4:      Set all LEDs to requested RGB color
+5:      Publish lightring message
+6:  else if L is an animated command then
+7:      Select animation frame sequence
+8:      while animation is active do
+9:          Publish next LED frame
+10:         Wait for timer callback
+11:     end while
+12: else if L = OFF then
+13:     Set all LEDs to black
+14:     Publish lightring message
+15: end if
+```
+
+The lightring state can be summarized as:
+
+```text
+Light state:
+    Lambda(t) = [LED1, LED2, LED3, LED4, LED5, LED6]
+
+Each LED:
+    LED_i = [R_i, G_i, B_i]
+```
+
+For static colors:
+
+```text
+Lambda(t) = same RGB value for all six LEDs
+```
+
+For animations:
+
+```text
+Lambda(t) = current frame from selected animation sequence
+```
+
+---
+
+#### Algorithm 9: Audio Feedback
+
+**Custom Node:** `audio_node`  
+**Purpose:** Convert game sound commands into Create 3 note sequences.
+
+**Inputs:** Sound command string  
+**Outputs:** Create 3 `audio_note_sequence` action goal
+
+```text
+Algorithm 9: Audio Feedback
+
+Require:
+    Sound command A
+    Audio library mapping sound names to MIDI note sequences
+
+Ensure:
+    Robot plays the requested game sound effect
+
+1:  Receive sound command A
+2:  if audio node is busy then
+3:      Ignore command or wait until current sequence completes
+4:  end if
+5:  Look up MIDI note sequence for A
+6:  for each note in sequence do
+7:      Convert MIDI note to frequency
+8:      Convert duration to ROS duration field
+9:      Append note to AudioNoteSequence
+10: end for
+11: Send AudioNoteSequence action goal to Create 3
+12: Set busy flag while sound is playing
+13: Clear busy flag after playback finishes
+```
+
+The MIDI-to-frequency conversion is:
+
+```text
+f(m) = 440 * 2^((m - 69) / 12)
+```
+
+where `m` is the MIDI note number.
+
+---
+
+#### Algorithm 10: User Interface and Startup Support
+
+**Custom Nodes:** `game_state_demo_gui`, `pacmanbot_rviz_plugins`, `wait_for_amcl_pose`  
+**Purpose:** Support manual testing, RViz-based game control, and startup synchronization.
+
+```text
+Algorithm 10: User Interface and Startup Support
+
+Require:
+    User button input
+    AMCL pose stream
+
+Ensure:
+    Game commands are only used after localization is available
+
+1:  wait_for_amcl_pose subscribes to AMCL pose
+2:  while no AMCL pose has been received do
+3:      Keep waiting
+4:  end while
+5:  Mark localization as ready
+
+6:  if user presses RViz Start button then
+7:      Call game/start service
+8:  end if
+
+9:  if user presses RViz Reset button then
+10:     Call game/reset service
+11: end if
+
+12: if user presses demo GUI event button then
+13:     Publish selected game_event, game_light, or game_sound command
+14: end if
+```
+
+---
+
+### 2.3 Algorithm Summary
+
+Together, these algorithms define the custom PacManBot behavior. The `pellet_manager` creates the game objectives, `clyde_ghost_node` creates a moving ghost and obstacle, `planner_stub` selects strategic pellet targets, `game_controller` manages score and state transitions, and the feedback nodes translate game events into lights, sound, and motion.
+
+The system is therefore a layered autonomy design, mimicking an augmented reality video game. Nav2 still performs the low-level navigation and obstacle avoidance, while the custom modules implement the Pac-Man game rules and high-level decision-making.
+
 ---
 
 ## 3. Benchmarking & Results
