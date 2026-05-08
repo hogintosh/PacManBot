@@ -26,7 +26,7 @@ This page demonstrates the core capabilities of the Just the Docs theme, includi
 ---
 
 ## 1. PacManBot Abstract Diagram
-
+![Abstract Diagram]({{ '/assets/images/Abstract_Diagram.png' | relative_url }})
 ---
 
 ## 2. Algorithm
