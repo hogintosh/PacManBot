@@ -69,6 +69,11 @@ The experiment met all primary objectives. Future work should focus on optimizin
 
 ## 4.Ethical Impact Statement
 
+### Privacy and Data Handling
+PacManBot uses ROS 2 topics, localization data, map files, and logged robot data to operate and evaluate performance. In this implementation, the main privacy concern is not facial recognition, but the storage of indoor environment information through maps, AMCL pose logs, trajectory logs, and demo recordings. The map used for navigation may reveal the layout of an indoor space, and ROS logs may record where the TurtleBot 4 moved during testing. Future versions that add cameras or cloud connectivity would increase privacy risk and should include data minimization, local-only processing, restricted access to logs, and blurring/anonymization for any recorded video.
+
+
+
 You can include images by placing them in the `assets/images/` folder.
 
 ![Alt text](../assets/images/logo.png){: width="500" }
