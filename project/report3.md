@@ -74,7 +74,7 @@ Overall, the system has progressed from a functional navigation baseline into a 
 
 ### 2.2 Algorithm Logic and System Model
 
-The PacManBot system is modeled as a hybrid autonomy and game-control architecture. The custom modules define the game rules and high-level decision-making, while Nav2 provides lower-level path planning, controller execution, and costmap-based obstacle avoidance.
+The PacManBot system is modeled as a hybrid autonomy and game-control architecture. The custom modules define the Pac-Man game rules and high-level decision-making, while Nav2 provides lower-level path planning, controller execution, and costmap-based obstacle avoidance.
 
 The system can be summarized by the following state representation:
 
@@ -104,15 +104,24 @@ where `(xi, yi)` is the pellet position in the map frame and `id_i` is the marke
 
 ---
 
-#### Algorithm 1: Complete PacManBot Game Loop
+#### Total Logic Summary: PacManBot Game Autonomy
 
-**Purpose:** Coordinate the overall game sequence from startup to gameplay, win, death, and reset.
+> This summary describes the complete system-level behavior. It is not contained in one file; it is distributed across the game controller, planner, pellet manager, Clyde node, and feedback nodes.
+{: .note }
 
-**Inputs:** Saved map, AMCL pose, pellet markers, Clyde pose, start/reset commands  
-**Outputs:** Game state, score, Nav2 goals, light events, sound events, reset commands
+**Purpose:** Coordinate the full game sequence from startup to gameplay, win, death, and reset.
+
+**Primary Source File:** [`game_controller.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_controller.py)  
+**Supporting Source Files:** [`planner_stub.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/planner_stub.py), [`pellet_manager.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/pellet_manager.py), [`clyde_ghost_node.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/clyde_ghost_node.py), [`game_event_mapper.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_event_mapper.py)
+
+| Item | Description |
+|---|---|
+| Inputs | Saved map, AMCL pose, pellet markers, Clyde pose, start/reset commands |
+| Outputs | Game state, score, Nav2 goals, light events, sound events, reset commands |
+| Main Responsibility | Coordinate the full PacManBot gameplay loop |
 
 ```text
-Algorithm 1: Complete PacManBot Game Loop
+Total Logic Summary: PacManBot Game Autonomy
 
 Require:
     Saved occupancy map M
@@ -130,6 +139,7 @@ Ensure:
 3:  Wait until AMCL pose xr is available
 4:  Generate pellet set P from valid map cells
 5:  Initialize Clyde in valid map space
+
 6:  while system is running do
 7:      if start command received then
 8:          Reset score, pellets, Clyde, and round variables
@@ -144,21 +154,24 @@ Ensure:
 16:         Update Clyde pose xc
 17:         Update remaining pellet set P
 18:         Publish Clyde as a dynamic obstacle
-19:         Select best pellet using Algorithm 4
+19:         Select best pellet using Clyde-aware scoring
 20:         Send selected pellet to Nav2
 21:         Monitor pellet collection
 22:         Monitor Clyde collision
+
 23:         if pellet collected then
 24:             Remove pellet from P
 25:             Increment score
 26:             Publish pellet event
 27:         end if
+
 28:         if Clyde catches robot then
 29:             Cancel Nav2 goal
 30:             Disable autonomy
 31:             Publish death event
 32:             Set G <- DYING
 33:         end if
+
 34:         if all pellets collected then
 35:             Disable autonomy
 36:             Publish win event
@@ -175,16 +188,19 @@ Ensure:
 
 ---
 
-#### Algorithm 2: Pellet Generation and Removal
+#### Algorithm 1: Pellet Generation and Removal
 
-**Custom Node:** `pellet_manager`  
+**Custom Node:** [`pellet_manager`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/pellet_manager.py)  
 **Purpose:** Convert the saved map into valid pellet locations and remove pellets when collected.
 
-**Inputs:** Occupancy map image, map resolution, map origin, remove/reset requests  
-**Outputs:** Pellet marker array, updated pellet set
+| Item | Description |
+|---|---|
+| Inputs | Occupancy map image, map resolution, map origin, remove/reset requests |
+| Outputs | Pellet marker array, updated pellet set |
+| Main Responsibility | Maintain the game-world pellet layout |
 
 ```text
-Algorithm 2: Pellet Generation and Removal
+Algorithm 1: Pellet Generation and Removal
 
 Require:
     Occupancy map image M
@@ -202,6 +218,7 @@ Ensure:
 3:  Read map resolution R and origin (x0, y0)
 4:  Convert spacing s and clearance rw from meters to pixels
 5:  Initialize empty pellet set P
+
 6:  for each candidate pixel (u, v) sampled at spacing s do
 7:      if M(u, v) <= Tf then
 8:          Reject candidate
@@ -213,6 +230,7 @@ Ensure:
 14:         Add pellet to P
 15:     end if
 16: end for
+
 17: Publish P as RViz marker array
 
 18: while node is running do
@@ -220,6 +238,7 @@ Ensure:
 20:         Remove pellet with matching ID from P
 21:         Republish updated marker array
 22:     end if
+
 23:     if reset_pellets service called then
 24:         Regenerate full pellet set P
 25:         Republish marker array
@@ -238,16 +257,19 @@ where `H` is the map image height. The `(H - v)` term flips image coordinates in
 
 ---
 
-#### Algorithm 3: Clyde Ghost Motion and Obstacle Publishing
+#### Algorithm 2: Clyde Ghost Motion and Obstacle Publishing
 
-**Custom Node:** `clyde_ghost_node`  
+**Custom Node:** [`clyde_ghost_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/clyde_ghost_node.py)  
 **Purpose:** Simulate Clyde as a moving ghost and publish him as both a game object and a dynamic obstacle.
 
-**Inputs:** Occupancy map, reset command, Clyde speed command  
-**Outputs:** Clyde pose, Clyde marker, Clyde obstacle cloud
+| Item | Description |
+|---|---|
+| Inputs | Occupancy map, reset command, Clyde speed command |
+| Outputs | Clyde pose, Clyde marker, Clyde obstacle cloud |
+| Main Responsibility | Move Clyde through valid map space and inject him into Nav2 costmaps |
 
 ```text
-Algorithm 3: Clyde Ghost Motion and Obstacle Publishing
+Algorithm 2: Clyde Ghost Motion and Obstacle Publishing
 
 Require:
     Occupancy map M
@@ -264,18 +286,23 @@ Ensure:
 4:  Select valid spawn cell for Clyde
 5:  Select valid target cell for Clyde
 6:  Plan or choose path through valid cells
+
 7:  while node is running do
 8:      if reset_clyde command received then
 9:          Select new valid spawn cell
 10:         Select new valid target cell
 11:     end if
+
 12:     if speed command received then
 13:         Update Clyde speed vc
 14:     end if
+
 15:     Move Clyde toward current target
+
 16:     if Clyde reaches target then
 17:         Select a new valid target cell
 18:     end if
+
 19:     Publish Clyde pose
 20:     Publish Clyde RViz marker
 21:     Publish Clyde obstacle cloud for Nav2 costmap
@@ -300,20 +327,23 @@ The active navigation costmap can therefore be summarized as:
 C(t) = C_static ∪ C_sensor(t) ∪ C_clyde(t)
 ```
 
-This means Clyde affects the robot in two ways. First, the custom planner uses Clyde's pose to score risky pellets. Second, Nav2 uses Clyde's obstacle cloud in the local costmap so the robot can avoid Clyde during motion execution.
+Clyde affects the robot in two ways. First, the custom planner uses Clyde's pose to score risky pellets. Second, Nav2 uses Clyde's obstacle cloud in the local costmap so the robot can avoid Clyde during motion execution.
 
 ---
 
-#### Algorithm 4: Clyde-Aware Pellet Selection
+#### Algorithm 3: Clyde-Aware Pellet Selection
 
-**Custom Node:** `planner_stub`  
+**Custom Node:** [`planner_stub`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/planner_stub.py)  
 **Purpose:** Select the best pellet target using robot distance, Clyde proximity, and Clyde threat direction.
 
-**Inputs:** Robot pose, Clyde pose, pellet set, game command  
-**Outputs:** Selected pellet goal, Nav2 action goal
+| Item | Description |
+|---|---|
+| Inputs | Robot pose, Clyde pose, pellet set, game command |
+| Outputs | Selected pellet goal, Nav2 action goal |
+| Main Responsibility | Choose the safest and most useful pellet goal |
 
 ```text
-Algorithm 4: Clyde-Aware Pellet Selection
+Algorithm 3: Clyde-Aware Pellet Selection
 
 Require:
     Robot pose xr = (xr, yr)
@@ -340,10 +370,12 @@ Ensure:
 10:     end if
 
 11:     direction_penalty <- 0
+
 12:     if Clyde is threatening robot then
 13:         robot_to_clyde <- xc - xr
 14:         robot_to_pellet <- pi - xr
 15:         alignment <- dot(robot_to_clyde, robot_to_pellet)
+
 16:         if alignment > 0 then
 17:             direction_penalty <- wd * (1 + alignment)
 18:         end if
@@ -383,16 +415,20 @@ The planner does not replace Nav2. It only selects the next strategic goal. Nav2
 
 ---
 
-#### Algorithm 5: Planner Execution and Replanning
+#### Algorithm 4: Planner Execution and Replanning
 
-**Custom Node:** `planner_stub`  
+**Custom Node:** [`planner_stub`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/planner_stub.py)  
+**Related Configuration:** [`nav2_custom.yaml`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/launch/nav2_custom.yaml)  
 **Purpose:** Send pellet goals to Nav2, monitor progress, remove pellets, detect death, and replan when needed.
 
-**Inputs:** AMCL pose, pellet markers, Clyde pose, game commands  
-**Outputs:** Nav2 goals, remove-pellet commands, game status messages
+| Item | Description |
+|---|---|
+| Inputs | AMCL pose, pellet markers, Clyde pose, game commands |
+| Outputs | Nav2 goals, remove-pellet commands, game status messages |
+| Main Responsibility | Execute strategic goals through Nav2 and monitor game conditions |
 
 ```text
-Algorithm 5: Planner Execution and Replanning
+Algorithm 4: Planner Execution and Replanning
 
 Require:
     AMCL pose xr
@@ -409,6 +445,7 @@ Ensure:
 1:  Wait for AMCL pose
 2:  Save first valid AMCL pose as home pose
 3:  Wait until game command is ENABLE
+
 4:  while planner is enabled do
 5:      Update robot pose xr
 6:      Update pellet set P
@@ -468,16 +505,19 @@ Caught by Clyde if:
 
 ---
 
-#### Algorithm 6: Game Controller State Machine
+#### Algorithm 5: Game Controller State Machine
 
-**Custom Node:** `game_controller`  
+**Custom Node:** [`game_controller`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_controller.py)  
 **Purpose:** Manage the full game state, including menu, start, running, death, completion, score, and round behavior.
 
-**Inputs:** Start/reset services, game status messages, pellet markers  
-**Outputs:** Game commands, game state, score, round, Clyde speed, game events
+| Item | Description |
+|---|---|
+| Inputs | Start/reset services, game status messages, pellet markers |
+| Outputs | Game commands, game state, score, round, Clyde speed, game events |
+| Main Responsibility | Coordinate high-level game state transitions |
 
 ```text
-Algorithm 6: Game Controller State Machine
+Algorithm 5: Game Controller State Machine
 
 Require:
     Start service
@@ -552,16 +592,19 @@ v_clyde(round) = v_base + (round - 1) * v_step
 
 ---
 
-#### Algorithm 7: Game Event Mapping
+#### Algorithm 6: Game Event Mapping
 
-**Custom Node:** `game_event_mapper`  
+**Custom Node:** [`game_event_mapper`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_event_mapper.py)  
 **Purpose:** Convert abstract game events into light commands, sound commands, and optional robot motion effects.
 
-**Inputs:** Game event string  
-**Outputs:** Game light command, game sound command, optional `cmd_vel`
+| Item | Description |
+|---|---|
+| Inputs | Game event string |
+| Outputs | Game light command, game sound command, optional `cmd_vel` |
+| Main Responsibility | Translate game events into physical robot feedback |
 
 ```text
-Algorithm 7: Game Event Mapping
+Algorithm 6: Game Event Mapping
 
 Require:
     Game event e
@@ -575,19 +618,24 @@ Ensure:
 3:      Publish light command START
 4:      Publish sound command PACMAN_THEME
 5:      Execute timed spin motion
+
 6:  else if e = PELLET then
 7:      Publish light command PELLET
 8:      Publish sound command PELLET
+
 9:  else if e = POWER_PELLET then
 10:     Publish light command POWER_PELLET
 11:     Publish sound command POWERUP
+
 12: else if e = DEATH or e = GAME_OVER then
 13:     Publish light command GAME_OVER
 14:     Publish sound command DEATH
 15:     Execute timed shake motion
+
 16: else if e = WIN then
 17:     Publish light command WIN
 18:     Publish sound command WIN
+
 19: else if e = RESET then
 20:     Publish light command OFF
 21:     Publish zero velocity command
@@ -610,16 +658,19 @@ START_THEATRICAL  -> (START_LIGHTS, THEME_SOUND, SPIN_MOTION)
 
 ---
 
-#### Algorithm 8: Light Feedback
+#### Algorithm 7: Light Feedback
 
-**Custom Node:** `game_light_node`  
+**Custom Node:** [`game_light_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_light_node.py)  
 **Purpose:** Convert light commands into Create 3 lightring colors and animations.
 
-**Inputs:** Light command string  
-**Outputs:** Create 3 `cmd_lightring` messages
+| Item | Description |
+|---|---|
+| Inputs | Light command string |
+| Outputs | Create 3 `cmd_lightring` messages |
+| Main Responsibility | Provide visual feedback for game state and events |
 
 ```text
-Algorithm 8: Light Feedback
+Algorithm 7: Light Feedback
 
 Require:
     Light command L
@@ -629,15 +680,18 @@ Ensure:
 
 1:  Receive light command L
 2:  Stop active animation if command overrides it
+
 3:  if L is a static color command then
 4:      Set all LEDs to requested RGB color
 5:      Publish lightring message
+
 6:  else if L is an animated command then
 7:      Select animation frame sequence
 8:      while animation is active do
 9:          Publish next LED frame
 10:         Wait for timer callback
 11:     end while
+
 12: else if L = OFF then
 13:     Set all LEDs to black
 14:     Publish lightring message
@@ -668,16 +722,20 @@ Lambda(t) = current frame from selected animation sequence
 
 ---
 
-#### Algorithm 9: Audio Feedback
+#### Algorithm 8: Audio Feedback
 
-**Custom Node:** `audio_node`  
+**Custom Node:** [`audio_node`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_node.py)  
+**Supporting File:** [`audio_library.py`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/audio_library.py)  
 **Purpose:** Convert game sound commands into Create 3 note sequences.
 
-**Inputs:** Sound command string  
-**Outputs:** Create 3 `audio_note_sequence` action goal
+| Item | Description |
+|---|---|
+| Inputs | Sound command string |
+| Outputs | Create 3 `audio_note_sequence` action goal |
+| Main Responsibility | Provide audio feedback for game events |
 
 ```text
-Algorithm 9: Audio Feedback
+Algorithm 8: Audio Feedback
 
 Require:
     Sound command A
@@ -687,15 +745,19 @@ Ensure:
     Robot plays the requested game sound effect
 
 1:  Receive sound command A
+
 2:  if audio node is busy then
 3:      Ignore command or wait until current sequence completes
 4:  end if
+
 5:  Look up MIDI note sequence for A
+
 6:  for each note in sequence do
 7:      Convert MIDI note to frequency
 8:      Convert duration to ROS duration field
 9:      Append note to AudioNoteSequence
 10: end for
+
 11: Send AudioNoteSequence action goal to Create 3
 12: Set busy flag while sound is playing
 13: Clear busy flag after playback finishes
@@ -711,13 +773,19 @@ where `m` is the MIDI note number.
 
 ---
 
-#### Algorithm 10: User Interface and Startup Support
+#### Algorithm 9: User Interface and Startup Support
 
-**Custom Nodes:** `game_state_demo_gui`, `pacmanbot_rviz_plugins`, `wait_for_amcl_pose`  
+**Custom Nodes:** [`game_state_demo_gui`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/game_state_demo_gui.py), [`pacmanbot_rviz_plugins`](https://github.com/GSandys7/PacManBot_ROS2/tree/main/pacmanbot_rviz_plugins), [`wait_for_amcl_pose`](https://github.com/GSandys7/PacManBot_ROS2/blob/main/pacmanbot_package/pacmanbot_package/wait_for_amcl_pose.py)  
 **Purpose:** Support manual testing, RViz-based game control, and startup synchronization.
 
+| Item | Description |
+|---|---|
+| Inputs | User button input, AMCL pose stream |
+| Outputs | Start/reset service calls, manual game events, startup readiness |
+| Main Responsibility | Provide operator control and prevent gameplay before localization is ready |
+
 ```text
-Algorithm 10: User Interface and Startup Support
+Algorithm 9: User Interface and Startup Support
 
 Require:
     User button input
@@ -727,9 +795,11 @@ Ensure:
     Game commands are only used after localization is available
 
 1:  wait_for_amcl_pose subscribes to AMCL pose
+
 2:  while no AMCL pose has been received do
 3:      Keep waiting
 4:  end while
+
 5:  Mark localization as ready
 
 6:  if user presses RViz Start button then
